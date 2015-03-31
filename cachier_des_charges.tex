@@ -8,6 +8,8 @@
 \usepackage{tabulary}
 \usepackage{framed}
 \usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{bbm}
 %\usepackage{nopageno}
 
 \newcommand{\latin}[1]{\textit{#1}}
@@ -26,6 +28,9 @@
 \begin{document}
 	\begin{titlepage}
 		\vspace*{\stretch{2}}
+		\begin{center}
+			\large\bfseries\itshape Projet SAR\\
+		\end{center}
 		\noindent\rule{\linewidth}{3pt}
 
 		\begin{center}
@@ -33,6 +38,10 @@
 		\end{center}
 		
 		\noindent\rule{\linewidth}{3pt}
+		\begin{center}
+			\large Recherche de filtres de Bloom similaires \\
+			\large Application à la recherche par mots clés basée sur une DHT
+		\end{center}
 		\vspace*{\stretch{2}}
 		\begin{center}
 			Réalisé par NDOMBI TSHISUNGU Christian \& DOAN Cao Sang \\
@@ -48,54 +57,85 @@
 
 \chapter{Introduction}
 	\section{But du document}
-		Ce document est destiné à identifier et décrire les besoins du professeur en terme de \textbf{Recherche de filtres de Bloom similaire \& Application à la recherche par mots clés basée sur une DHT}.
+		Ce document est destiné à identifier et à décrire les besoins en termes de Recherche de Filtres de Bloom similaire \& Application à la recherche par mots clés basée sur une DHT, dans le cadre du projet SAR.
+Dans ce travail, il nous est demandé d’améliorer une application de recherches par mots clés. La recherche par mots clés permet aux utilisateurs de retrouver facilement les informations pertinentes dans des grosses masses de données. C’est-à-dire, une fois, on tape un mot ou plusieurs mots clés, l’application cherche dans la base de données une liste de publications dont la description correspond à ces mots clés. 
+En effet, la recherche par mots clés exploite un index qui associe à chaque terme du vocabulaire la liste des documents dont les descriptions contiennent ce mot (liste inversée). 
+Les solutions basées sur le maintien d'une liste inversée pour chaque terme sont confrontées à plusieurs problèmes : 
+		\begin{enumerate}
+			\item le coût de  maintenance de l’index distribué augmente avec le nombre de mots clés par document ; 
+			\item     le coût de la recherche est d’autant plus élevé que la requête est précise, c’est-à-dire contient un nombre élevé de mots clés ;
+			\item enfin, le déséquilibrage de charges des nœuds d’indexation du fait de la non-uniformité de la popularité des termes. 
+		\end{enumerate}
 
+	Il existe déjà une partie développée par le professeur : le système FreeCore. Pour retrouver tous les documents contenant les mots clés fournis, le système FreeCore visite tous les pairs associés à tous les sur-ensembles de l’ensemble de mots clés fournis dans la requête. L'efficacité de cette approche dépend du coût de la recherche des documents dont les descriptions sont des sur-ensembles de l'ensemble spécifié. Ainsi, une recherche peut devenir très fastidieuse avec le choix de la taille du filtre de Bloom à utiliser. 
 	\section{Contenu du document}
-		D'abord, ce document va présenter les objectifs, les besoins qu'il est censé satisfaire et l'environnement dans lequel il piurra être utilisé. Ensuite, nous allons décrire les fonctionnalités qu'il doit avoir pour répondre aux demandes du professeur.
+		Ce document va d’abord présenter les objectifs, les besoins que l’application est censée satisfaire et l’environnement dans lequel il pourra être utilisé. 
+		
+Nous parlerons succinctement du filtre bloom, avant d’aborder d’autres solutions des techniques de recherche basées toujours sur les filtres de Bloom similaires. Nous exploiterons beaucoup plus les techniques de vecteurs d’approximation pour décrire les fonctionnalités que l’application doit répondre
 
 \chapter{Présentation générale du projet}
 	\section{Marché}
-		Il existe actuellement des moteurs de recherche dans le marché qui ne satisfaisent pas complètement les besoins du professeur. L'application doit répondre explicitement aux exigences du professeur.
+		Il existe actuellement plusieurs moteurs de recherche par mots clés sur le marché. Il est toujours nécessaire d’améliorer les recherches en minimisant le temps de réponse et le coût de recherche, d’autant plus que les besoins de recherche deviennent très importants lorsqu’on exploite des bases de données de plus en plus grande et complexe. L’application que nous développerons doit répondre explicitement à ces exigences.
 		
 	\section{Contexte et objectifs}
-		L'application FreeCore utilise le filtre de Bloom pour faciliter la recherche. Maintenant, nous allons d'explorer une solution basée sur cette application. Ce filtre est considéré comme un point dans un espace à $n$ dimensions plutôt qu'une concaténation de $n$ mots binaires. Nous déterminons une relation de proximité et nous exploitons les algorithmes de recherche des filtres similaires pour réduire l'ensemble de filtres à examiner.
+		Comme l’application FreeCore, qui utilise le filtre de Bloom pour faciliter la recherche par mot clé, le but de notre projet est d'explorer d’autres solutions basées sur une recherche de filtre de Bloom similaires.  Chaque filtre  de  Bloom  sera vu  comme  un  point  dans  un  espace à n dimensions  plutôt  qu'une  concaténation de  n mots binaires. On détermine ensuite une relation de proximité et on exploite les algorithmes de recherche des filtres similaires pour réduire l'ensemble de filtres à examiner.
 		
 	\section{Enoncé du besoin}
-		L'application doit permettre de rechercher des documents qui contiennent tous les mots clés de la requête de façon optimale en utilisant le filtre de Bloom:
+		Comme FreeCore, l’application exploitera les propriétés des filtres de Bloom. Il  permettra d’une part, de stocker les publications dans un fichier $VA\_file$ (put). Et d’autre part, d’effectuer des recherches de contenus par mots clés (search).
+		\subsection{Stockage et indexation des publications}
+		L’application permet de rechercher des publications qui contiennent tous les mots clés de la requête de façon optimale en utilisant le filtre de Bloom. Elle doit :
 	\begin{itemize}
 	
-	\item créer les lieux où on stocke les documents différents,
+	\item créer un filtre de Bloom correspondant à la description de la publication, 
+	\item créer un vecteur de n dimensions.
+	\item créer les lieux où on stocke les différents documents,
 	\item à partir d'un fichier de test, classer et indexer les documents dans les lieux correspondants,		
-	\item ajouter un nouveau document à partir d'un filtre de Bloom,	
-	\item recherche un document à partir d'un filtre de Bloom,	
-	\item utilise le vecteur approximatif pour indexer et rechercher.				\end{itemize}
+	\item ajouter un nouveau document à partir d'un filtre de Bloom,				\end{itemize}
 	
-En outre, l'application doit pouvoir aider le travail en assurant les services suivants:
-
+	\subsection{Recherche de contenus}
+	Pour la recherche l’application créera un Filtre de Bloom des mots clés, représentants notre critère de recherche, c’est-à-dire les mots clés et devra :
 	\begin{itemize}
-	\item afficher les erreurs, s'il existe,	
-	\item afficher les états de l'application,	
-	\item interagir avec le client,
-	\item faciliter les tests en utilisant les fichiers de test ou en utilisant les entrées à la main du client.
+		\item recherche un document à partir du filtre de Bloom,
+ 		\item utilise le vecteur approximatif pour indexer et rechercher.
 	\end{itemize}
 	
-	\section{Environnement}
-		Cette apllication est programmée en C, elle fonctionne sous un environnement Linux ou Mac OS avec compilateur GCC ou similaire.
+En outre, l’application doit assurer les services suivants :
 
+	\begin{itemize}
+	\item afficher les messages d'erreurs, s'il en existe,	
+	\item afficher les états de l'application,	
+	\item interagir avec l'utilisateur,
+	\item faciliter les tests en utilisant les fichiers de test ou en utilisant les entrées saisit par l'utilisateur.
+	\end{itemize}
+	\begin{description}
+		\item[Note :] Nous ne traiterons pas les erreurs  possibles obtenues en cas de faute de frappe ou de faute d’orthographe, ni la différence de genre et de nombre des mots clés. Qui pourront faire objet d’une suite de ce travail.
+			\end{description}
+
+	\section{Environnement}
+		L’application est développée en C, sous un environnement Linux ou Mac OS avec compilateur GCC ou similaire.
+		
+	\section{Répartition du travail}
+		Chritian: \textit{Première approche et exploitation de filtre de Bloom.}
+		
+		Cao Sang: \textit{Deuxième approche.}
+		
 \chapter{Première approche}
 	\section{Fichiers générés}
 
 	\begin{description}
-		\item[fichier\_vecteur$_i$:] contient l'adresse des documents qui ont le même vecteur
+		\item[fichier\_vecteur:] contient l'adresse des documents qui ont le même vecteur
 		\item[VA\_file:] contient l'adresse des fichiers de vecteurs différents
 	\end{description}
 	
 	\section{Fontions de l'application}
 		\subsection{PUT}
-		A partir d'un filtre de Bloom, cette fonction génére un vecteur VA de $n$ dimensions, et puis consulte le fichier $VA\_file$ pour trouver l'adresse du fichier qui correspond avec ce vecteur et met à jour le fichier trouvé de ce vecteur, sinon crée ce fichier et met à jour. Avant de la terminaison, cette fonction affiche les résultat.
+		Une publication est représentée par une adresse et un ensemble de mots clés. La clé de stockage de la publication est le filtre de Bloom des mots clés de sa description.
+		
+	A partir du filtre de Bloom de la publication, la fonction génère un vecteur VA de $2^n$ dimensions, avec $n \in \mathbbm{N^*}$, puis consulte le fichier $VA\_file$ pour retrouver l’adresse du fichier qui correspond à ce vecteur et le met à jour. Si l’entré n’existe pas, elle crée ce fichier et met à jour. Enfin, la fonction affiche le message de confirmation de la mis à jour.
 	
 		\subsection{SEARCH}
-		A partir d'un filtre de Bloom, cette fonction génére un vecteur VA de $n$ dimensions, ensuite cherche dans le fichier $VA\_file$ pour trouver l'adresse du fichier qui correspond avec ce vecteur, puis consulte le fichier trouvé, compare tous les documents qui existent dans ce fichier pour trouver tous les documents qui satisfaisent ce filtre (ceux qui le contiennent) et les affiche sur l'écran d'utilisateur. S'il n'existe pas le fichier qui appartient ce vecteur VA, cette fonction affiche le message d'erreur.
+		La recherche est basée sur un ensemble de mots clés. L’application crée un filtre de Bloom de ces mots clés.
+ A partir du filtre de Bloom, la fonction génère un vecteur VA de $2^n$ dimensions, cherche dans le fichier $VA\_file$ l’adresse du fichier qui correspond à ce vecteur, puis consulte le fichier trouvé, compare tous les documents qui existent dans ce fichier pour trouver tous les documents qui satisfassent le filtre (ceux qui le contiennent) et les affiche sur l’écran de l'utilisateur. S’il n’existe pas le fichier qui appartient à ce vecteur VA, la fonction affichera le message d’erreur.
 
 \section{Algorithme des fonctions}
 	\subsection{PUT}
@@ -106,29 +146,30 @@ En outre, l'application doit pouvoir aider le travail en assurant les services s
 
 \begin{flushleft}
 	\begin{framed}
-		\textbf{INPUT:} filtre\_de\_Bloom, @doc
+		\textbf{INPUT:} filtre\_de\_Bloom $f_{put}$, document $doc$
 		\noindent\rule{\linewidth}{0.5pt}
 
 		\begin{enumerate}
-		\item $ Vecteur_{put} = creer\_va(filtre\_de\_Bloom) $
+		\item Vecteur $put = creer\_va(f) $
+		\item Vecteur $tmp \leftarrow \emptyset$
 		\item 
-			\begin{tabbing}
-				TANT QUE: \= $lire(VA\_file)$ \\
-						\> SI \= $vecteur_{put} == vecteur_i$ ALORS\\
-						\> \> sortie TANT QUE\\
-						\> FIN SI\\
-				FIN TANT QUE
-	    		\end{tabbing}
+		\begin{tabbing}
+			TANT QUE: \= $tmp \leftarrow lire(VA\_file)$ \\
+					\> SI \= $put == tmp$ ALORS\\
+					\> \> sortie TANT QUE\\
+					\> FIN SI\\
+			FIN TANT QUE
+	    	\end{tabbing}
 		\item
-			\begin{tabbing}
-				SI \= $vecteur_{put} == vecteur_i $ ALORS\\
-					\> $mettre\_a\_jour (fichier\_vecteur_{i}, @doc)$\\
-				SINON\\
-					\> $ajoute(VA\_file, vecteur_{put})$\\
-					\> $creer\_fichier(fichier\_vecteur_{put})$\\
-					\> $mettre\_a\_jour (fichier\_vecteur_{put}, @doc)$\\
-				FIN SI
-			\end{tabbing}
+		\begin{tabbing}
+			SI \= $put == tmp $ ALORS\\
+			\> $mettre\_a\_jour (fichier\_vecteur_{tmp},\ doc)$\\
+			SINON\\
+			\> $ajoute(VA\_file,\ put)$\\
+			\> $creer\_fichier(fichier\_vecteur_{put})$\\
+			\> $mettre\_a\_jour (fichier\_vecteur_{put},\ doc)$\\
+			FIN SI
+		\end{tabbing}
 		\end{enumerate}
 	\end{framed}
 \end{flushleft}
@@ -140,67 +181,147 @@ En outre, l'application doit pouvoir aider le travail en assurant les services s
 
 \begin{flushleft}
 	\begin{framed}
-		\textbf{INPUT:} filtre\_de\_Bloom
+		\textbf{INPUT:} filtre\_de\_Bloom $f_{req}$
 		\noindent\rule{\linewidth}{0.5pt}
 		\begin{enumerate}
-			\item $ Vecteur_{req} = creer\_va(filtre\_de\_Bloom) $
+			\item Vecteur $req = creer\_va(f) $
+			\item Vecteur $tmp \leftarrow \emptyset$
 			\item
-				\begin{tabbing}
-					TANT QUE: \= $lire(VA\_file)$\\
-						\> SI \= $vecteur_{req} == vecteur_i$ ALORS\\
-						\> \> sortie TANT QUE\\
-						\> FIN SI\\
-					FIN TANT QUE
-				\end{tabbing}
+			\begin{tabbing}
+				TANT QUE: \= $tmp \leftarrow lire(VA\_file)$\\
+					\> SI \= $req == tmp$ ALORS\\
+					\> \> sortie TANT QUE\\
+					\> FIN SI\\
+				FIN TANT QUE
+			\end{tabbing}
 			\item 
-				\begin{tabbing}
-					SI \= $vecteur_{req} == vecteur_i$ ALORS\\
-					\> TANT QUE: \= $lire(fichier\_vecteur_{i})$\\
-					\> \> SI \= $filtre\_de\_bloom_{req} \subseteq filtre\_de\_bloom_j$ ALORS\\
-					\> \> \> \textit{affiche(@doc)} \\
-					\> \> FIN SI\\
-					\> FIN TANT QUE\\
-					SINON\\
-					\> $\emptyset$\\
-					FIN SI
-				\end{tabbing}
+			\begin{tabbing}
+				SI \= $req == tmp$ ALORS\\
+				\> filtre\_de\_Bloom $f_{tmp} \leftarrow \emptyset $\\
+				\> TANT QUE: \= $f_{tmp} \leftarrow lire(fichier\_vecteur_{tmp})$\\
+				\> \> SI \= $f_{req} \subseteq f_{tmp}$ ALORS\\
+				\> \> \> \textit{affiche\_doc()} \\
+				\> \> FIN SI\\
+				\> FIN TANT QUE\\
+				SINON\\
+				\> $\emptyset$\\
+				FIN SI
+			\end{tabbing}
 		\end{enumerate}	
 	\end{framed}
 \end{flushleft}
 
 \section{Problèmes rencontrés}
 \begin{enumerate}
-	\item La taille du fichier \textbf{VA\_file} généré par cette aplication est de plus en plus important,
-	\item Le parcours de recherche dans le fichier \textbf{VA\_file} est toujours séquentiel, le temps de parcourir tout le fichier devient important,
-	\item La capacité du fichier \textbf{VA\_file} a limite,
-	\item La recherche dans le fichier \textbf{VA\_file} devient le problème fondamental que nous devons le résoudre.
+	\item La taille du fichier \textbf{VA\_file} généré par l'application est de plus en plus importante,
+	\item Le parcours de recherche dans le fichier \textbf{VA\_file} est toujours séquentiel, le temps de parcourt du fichier devient important,
 \end{enumerate}
+	La recherche dans le fichier \textbf{VA\_file} devient notre second problème que nous devons résoudre.
 
 \chapter{Deuxième approche}
 \section{Solution proposée}
-	Nous proposons que l'on utilise un seuil pour le fichier \emph{VA\_file}. Si les données sont dépassées ce seuil, en utilisant cet algorithme la deuxième fois sur les vecteurs dans ce \emph{VA\_file}, on crée des nouveaux vecteurs et les met dans un nouveau fichier \emph{VA\_file} de \emph{VA\_file} qui stocke l'adresse vers ces vecteurs.
+	Nous proposons de fixer un seuil pour le fichier $VA\_file$. Si le nombre d'entrées dépasse ce seuil, on réutilise l'algorithme une deuxième fois sur les vecteurs dans le $VA\_file$, on crée des nouveaux vecteurs de taille deux fois plus petite et les met dans un nouveau fichier $VA\_file$ qui stocke les adresses vers ces anciens vecteurs.
+	
 \section{Fichiers générés}
 	Au-delà des fichiers déjà crées par la première fois, cette application crée en plus ces fichiers ci-dessous:
 	\begin{description}
-		\item[fichier\_vecteur$_j$:] au contraire du vecteur \textit{i} ci-dessus, ce vecteur \textit{j} a dimension réduite $\frac{n}{k}$ avec $n$ taille du vecteur $i$, $k$ nombre d'application cet algorithme, ici $k = 2$.
+		\item[fichier\_vecteur:] au contraire des vecteurs ci-dessus, ce vecteur a dimension réduite à $2^{n-k}$ avec $2^n$ dimensions du vecteur $i$, $k \leq n, k \in \mathbbm{N^*}$.
 		\item[VA\_file: ] cette fois-ci, ce fichier contient l'adresse des fichiers de ces nouveaux vecteurs.
 	\end{description}
 	
 \section{Fontions de l'application}
 \subsection{PUT}
-	A partir d'un filtre de Bloom, cette fonction génére un vecteur VA de $n$ dimensions, et puis consulte le fichier $VA\_file$ pour trouver l'adresse du fichier qui correspond avec ce vecteur et met à jour le fichier trouvé de ce vecteur, sinon crée ce fichier et met à jour. Une fois, le seuil est dépassé, cette application prend tous les vecteurs dans le fichier $VA\_file$ comme argument et applique cet algorithme, chaque nouveau vecteur contient l'adresse de l'ancien vecteur à celui qui appartient. Ensuite, on crée un nouveau fichier $VA\_file$ qui contient l'adresse des nouveaux vecteurs.
+	A partir d'un filtre de Bloom, cette fonction génére un vecteur VA de $2^n$ dimensions, et puis consulte le fichier $VA\_file$ pour trouver l'adresse du fichier qui correspond avec ce vecteur et met à jour le fichier trouvé de ce vecteur, sinon crée ce fichier et met à jour. Une fois, le seuil est dépassé, cette application prend tous les vecteurs dans le fichier $VA\_file$ comme argument et applique cet algorithme, chaque nouveau vecteur de taille $2^{n-k}$ dimensions contient l'adresse de l'ancien vecteur à celui qui appartient. Ensuite, on crée un nouveau fichier $VA\_file$ qui contient l'adresse des nouveaux vecteurs.
+	
 \subsection{SEARCH}
-dqsdqsdqsdq
+	En regardant dans le fichier $VA\_file$, l'application trouve le nombre de $2^{n-k}$ dimensions, donc elle prend l'argument et applique cet algorithme $k$ fois pour trouver un vecteur $req_k$ de bon dimension. Puis, elle compare les vecteurs dans le fichier $VA\_file$, s'il n'existe pas le vecteur qui correspond au vecteur $req_k$, elle affiche le message d'erreur. Sinon, elle lit le fichier $fichier\_vecteur$ qui correspond avec le vecteur $req_k$ et compare les vecteurs trouvés avec le vecteur $req_{k}$ qui est généré par l'application de $(k)^{ième}$ fois cet algorithme avec $k \geq 0$, si $k = 0$, donc on revient à la première approche, elle va comparer tous les documents qui existent dans ce fichier pour trouver ceux qui satisfaisent ce filtre et les affiche sur l'écran de l'utilisateur. Si $k \neq 0$, alors elle applique cet algorithme jusqu'à $k = 0$.
 
 \section{Algorithme des fonctions}
 \subsection{PUT}
 	\begin{algorithme}
 		stockage et indexation d'un filtre (suite)
 	\end{algorithme}
+	
+	\begin{flushleft}
+		\begin{framed}
+			\textbf{INPUT:} filtre\_de\_Bloom $f_{put}$, document $doc$
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{enumerate}
+			\item int $k \leftarrow lire(VA\_file) $
+			\item int $i \leftarrow k$
+			\item FILE $file \leftarrow VA\_file$
+			\item Vecteur $put \leftarrow \emptyset$
+			\item Vecteur $tmp \leftarrow \emptyset$
+			\item
+			\begin{tabbing}
+				TANT QUE: \= $i \neq 0$ ALORS\\
+				\> $ put = creer\_va(f_{put},\ 2^{n -k})$\\
+				\> TANT QUE: \= $tmp \leftarrow lire(file)$\\
+				\> \> SI \= $put == tmp$ ALORS\\
+				\> \> \> $file \leftarrow fichier\_vecteur_{tmp}$\\
+				\> \> \> sortie TANT QUE\\
+				\> \> FIN SI\\
+				\> FIN TANT QUE\\
+				\> SI \= $put \neq tmp$ ALORS\\
+				\> \> $ajoute(put,\ file)$\\
+				\> \> $creer\_fichier(fichier\_vecteur_{put})$\\
+				\> \> $file \leftarrow fichier\_vecteur_{put}$\\
+				\> FIN SI\\
+				\> $i--$\\
+				FIN TANT QUE
+			\end{tabbing}
+			\item $mettre\_a\_jour(fichier\_vecteur_{put},\ doc)$
+		\end{enumerate}
+		\end{framed}
+	\end{flushleft}
+	
 \subsection{SEARCH}
 	\begin{algorithme}
 		recherche à partir d'un filtre (suite)
 	\end{algorithme} 
+	
+	\begin{flushleft}
+		\begin{framed}
+			\textbf{INPUT:} filtre\_de\_Bloom $f_{req}$
+			\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{enumerate}
+			\item int $k \leftarrow lire(VA\_file)$
+			\item int $i \leftarrow k$
+			\item FILE $file \leftarrow VA\_file$
+			\item Vecteur $req \leftarrow \emptyset$
+			\item Vecteur $tmp \leftarrow \emptyset$
+			\item
+			\begin{tabbing}
+				TANT QUE:\= $i \neq 0$ ALORS\\
+				\> $ req = creer\_va(f_{req},\ 2^{n - k})$\\
+				\> TANT QUE: \= $tmp \leftarrow lire(file)$\\
+				\> \> SI \= $req == tmp$ ALORS\\
+				\> \> \> $file \leftarrow fichier\_vecteur_{tmp}$\\
+				\> \> \> sortie TANT QUE\\
+				\> \> FIN SI\\
+				\> FIN TANT QUE\\
+				\> $i--$\\
+				FIN TANT QUE
+			\end{tabbing}
+			\item
+			\begin{tabbing}
+				SI \= $req == tmp$ ALORS\\
+				\> filtre\_de\_Bloom $f_{tmp} \leftarrow \emptyset $\\
+				\> TANT QUE: \= $f_{tmp} \leftarrow lire(fichier\_vecteur_{tmp})$ \\
+				\> \> SI \= $f_{req} \subseteq f_{tmp}$ ALORS\\
+				\> \> \> $affiche\_doc()$ \\
+				\> \> FIN SI\\
+				\> FIN TANT QUE\\
+				SINON \\
+				\> $\emptyset$\\
+				FIN SI			
+			\end{tabbing}
+		\end{enumerate}
+		\end{framed}
+	\end{flushleft}
+
 \end{document}
 
 
