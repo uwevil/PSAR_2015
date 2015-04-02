@@ -10,6 +10,7 @@
 \usepackage{fancyhdr}
 \usepackage{amsmath}
 \usepackage{bbm}
+
 %\usepackage{nopageno}
 
 \newcommand{\latin}[1]{\textit{#1}}
@@ -24,7 +25,7 @@
 \renewcommand{\footrulewidth}{0.5pt}
 \fancyfoot[L]{\textit{\nouppercase{\leftmark}}}
 \fancyfoot[R]{\thepage}
-
+  
 \begin{document}
 	\begin{titlepage}
 		\vspace*{\stretch{2}}
@@ -39,6 +40,7 @@
 		
 		\noindent\rule{\linewidth}{3pt}
 		\begin{center}
+			\bfseries
 			\large Recherche de filtres de Bloom similaires \\
 			\large Application à la recherche par mots clés basée sur une DHT
 		\end{center}
@@ -150,7 +152,7 @@ En outre, l’application doit assurer les services suivants :
 		\noindent\rule{\linewidth}{0.5pt}
 
 		\begin{enumerate}
-		\item Vecteur $put = creer\_va(f) $
+		\item Vecteur $put = creer\_va(f_{put}) $
 		\item Vecteur $tmp \leftarrow \emptyset$
 		\item 
 		\begin{tabbing}
@@ -163,11 +165,11 @@ En outre, l’application doit assurer les services suivants :
 		\item
 		\begin{tabbing}
 			SI \= $put == tmp $ ALORS\\
-			\> $mettre\_a\_jour (fichier\_vecteur_{tmp},\ doc)$\\
+			\> $mettre\_a\_jour (fichier\_vecteur_{tmp},\ doc,\ f_{put})$\\
 			SINON\\
 			\> $ajoute(VA\_file,\ put)$\\
 			\> $creer\_fichier(fichier\_vecteur_{put})$\\
-			\> $mettre\_a\_jour (fichier\_vecteur_{put},\ doc)$\\
+			\> $mettre\_a\_jour (fichier\_vecteur_{put},\ doc,\ f_{put})$\\
 			FIN SI
 		\end{tabbing}
 		\end{enumerate}
@@ -184,7 +186,7 @@ En outre, l’application doit assurer les services suivants :
 		\textbf{INPUT:} filtre\_de\_Bloom $f_{req}$
 		\noindent\rule{\linewidth}{0.5pt}
 		\begin{enumerate}
-			\item Vecteur $req = creer\_va(f) $
+			\item Vecteur $req = creer\_va(f_{req}) $
 			\item Vecteur $tmp \leftarrow \emptyset$
 			\item
 			\begin{tabbing}
@@ -225,7 +227,7 @@ En outre, l’application doit assurer les services suivants :
 \section{Fichiers générés}
 	Au-delà des fichiers déjà crées par la première fois, cette application crée en plus ces fichiers ci-dessous:
 	\begin{description}
-		\item[fichier\_vecteur:] au contraire des vecteurs ci-dessus, ce vecteur a dimension réduite à $2^{n-k}$ avec $2^n$ dimensions du vecteur $i$, $k \leq n, k \in \mathbbm{N^*}$.
+		\item[fichier\_vecteur:] au contraire des vecteurs ci-dessus, ce vecteur a dimension réduite à $2^{n-k}$ dimensions, $k \leq n, k \in \mathbbm{N^*}$.
 		\item[VA\_file: ] cette fois-ci, ce fichier contient l'adresse des fichiers de ces nouveaux vecteurs.
 	\end{description}
 	
@@ -271,7 +273,7 @@ En outre, l’application doit assurer les services suivants :
 				\> $i--$\\
 				FIN TANT QUE
 			\end{tabbing}
-			\item $mettre\_a\_jour(fichier\_vecteur_{put},\ doc)$
+			\item $mettre\_a\_jour(fichier\_vecteur_{put},\ doc,\ f_{put})$
 		\end{enumerate}
 		\end{framed}
 	\end{flushleft}
