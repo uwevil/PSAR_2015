@@ -28,6 +28,8 @@
 
 extern int min_dimension;
 
+int create_file_vector(char *vector, char *data);
+char *find_file_vector(char *vector);
 char *create_vector(char *filtre, int n);
 unsigned int bit2int(char *a, unsigned int len);
 char *int2bit(int a, int len);
