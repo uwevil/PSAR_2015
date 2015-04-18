@@ -8,89 +8,220 @@
 
 #include "projet3.h"
 
-int min_dimension = MAX_DIMENSION;
+int min_dimension;
+
+unsigned long hex2int(char *a, unsigned int len){
+    int i, tmp;
+    
+    unsigned long val = 0;
+    for (i = 0; i < len; i++) {
+        switch (a[i]) {
+            case 'a':
+                val = val + (10<<((len - 1 - i)*4));
+                break;
+            case 'b':
+                val = val + (11<<((len - 1 - i)*4));
+                break;
+            case 'c':
+                val = val + (12<<((len - 1 - i)*4));
+                break;
+            case 'd':
+                val = val + (13<<((len - 1 - i)*4));
+                break;
+            case 'e':
+                val = val + (14<<((len - 1 - i)*4));
+                break;
+            case 'f':
+                val = val + (15<<((len - 1 - i)*4));
+                break;
+            default:
+                if (isdigit(a[i]) == 0) {
+                    printf("hex2int: erreur not a number %c %d!\n", a[i], i);
+                    exit(1);
+                }
+                tmp = a[i] - '0';
+                val = val + (tmp<<((len - 1 - i)*4));
+                break;
+        }
+    }
+    
+    return val;
+}
+
+char *create_filter(char *keyword, int size_filter){
+    char *key, *tmp, *tmp2;
+    char *filter = malloc(sizeof(char) *(size_filter + 1));
+    unsigned char md[32];
+    char hash[2*sizeof(md) + 1];
+    CC_SHA256_CTX c;
+    int i;
+    unsigned long l;
+    
+    for (i = 0; i < size_filter; i++) {
+        filter[i] = '0';
+    }
+    filter[i] = '\0';
+    
+    tmp = keyword;
+    key = strtok(tmp, ",");
+    
+    while (key != NULL) {
+        CC_SHA256_Init(&c);
+        CC_SHA256_Update(&c, (const void *)key, strlen(key));
+        CC_SHA256_Final(md, &c);
+       
+        for (i = 0; i < sizeof(md); i++) {
+            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
+        }
+       
+        l = hex2int(hash, 32);
+        filter[l % size_filter] = '1';
+        
+        key = strtok(NULL, ",");
+    }
+    return filter;
+}
+
+int generator_filter(char *name){
+    FILE *file_in, *file_out;
+
+    file_in = fopen(name, "r");
+    if (file_in == NULL) {
+        printf("generator_filter: error open file_in %s/n", name);
+        exit(1);
+    }
+    
+    char tmp[1<<20];
+    char *docUrl, *description, *filter;
+    int nbreq, nbKeywords, pageRank;
+    
+    if (fgets(tmp, 1<<20, file_in) == NULL){
+        printf("generator_filter: file %s empty\n", name);
+        exit(1);
+    }
+
+    CC_SHA1_CTX c;
+    unsigned char md[20];
+    char hash[2*sizeof(md) + 1];
+    int i, j = 0;
+    char file_name[128];
+
+    while (fgets(tmp, 1<<20, file_in) != NULL) {
+        docUrl = strtok(tmp, ";");
+        description = strtok(NULL, ";");
+        pageRank = atoi(strtok(NULL, ";"));
+        nbreq = atoi(strtok(NULL, ";"));
+        nbKeywords = atoi(strtok(NULL, ";"));
+
+        filter = create_filter(description, 512);
+
+        CC_SHA1_Init(&c);
+        CC_SHA1_Update(&c, (const void *)filter, strlen(filter));
+        CC_SHA1_Final(md, &c);
+        
+        for (i = 0; i < sizeof(md); i++) {
+            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
+        }
+
+        strcpy(file_name, "test/");
+        strcat(file_name, hash);
+        file_name[strlen(file_name)] = '\0';
+
+      //  file_out = fopen(file_name, "a+");
+      //  fprintf(file_out, "%s\n", docUrl);
+      //  fclose(file_out);
+        put(filter);
+    }
+    
+    fclose(file_in);
+    return 0;
+}
 
 char *create_vector(char *filtre,int n){
     if ((n > 6) || (n == 1)) {
         printf("create_vector: n > 6 or n < 2\n");
         return NULL;
     }
-    if (strlen(filtre) != 512) {
-        printf("create_vector: filtre != 512\n");
+
+    if ((strlen(filtre) > MAX_FILTER) || (strlen(filtre) < MIN_FILTER)) {
+        printf("create_vector: filtre > 512 or filter < 16\n");
         return NULL;
     }
-    char vector[256], *tmp;
-    //vector = (char *)malloc(sizeof(char));
-    tmp = strdup(filtre);
+    
+    char *vector = (char *)malloc(sizeof(char)*257);
+    char *tmp = filtre;
     int i, j = 0;
 
     if (n == 0) {
-        for (i = 0; i < strlen(filtre); i = i*8){
+
+        for (i = 0; i < strlen(filtre); i = i + 8*pow(2, MAX_DIMENSION - min_dimension)){
             strncpy(vector+j, tmp+i, 4);
             j = j+4;
         }
+
         vector[j] = '\0';
-        
-        return strdup(vector);
+
+        return vector;
     }
-    for (i = 0; i < 512; i = i + 8*pow(2, MAX_DIMENSION - n)){
+    for (i = 0; i < MAX_FILTER; i = i + 8*pow(2, MAX_DIMENSION - n)){
         strncpy(vector+j, tmp+i, 4);
         j = j+4;
     }
-    vector[j] = '\0';
 
-    return strdup(vector);
+    vector[j] = '\0';
+    return vector;
 }
 
 int create_file_vector(char *vector, char *data){
     FILE *f;
     char *file_vector;
-    CC_SHA1_CTX c;
-    unsigned char md[8];
-    char hash[2*sizeof(md) + 1];
-    char tmp[600], *tmp2;
+    
+    char tmp[1024], *tmp2;
     int index = -1, i;
-    
-    CC_SHA1_Init(&c);
-    CC_SHA1_Update(&c, (const void *)vector, strlen(vector));
-    CC_SHA1_Final(md, &c);
-    
-    for (i = 0; i < sizeof(md); i++) {
-        snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
-    }
-    
-    strncat(file_vector, "vector_", 7);
-    strncat(file_vector, vector, 16);
-    
+
+    file_vector = find_file_name_vector(vector);
+/*
     f = fopen(file_vector, "r+");
-    if (f == NULL) {
-        f = fopen(file_vector, "w+");
+
+    if (f != NULL) {
+
+        while (fgets(tmp, 1024, f) != NULL) {
+            tmp[strlen(tmp) - 1] = '\0';
+            
+            index = strtol(strtok(tmp, ";"), NULL, 10);
+            tmp2 = strdup(strtok(NULL, ";"));
+            if (strcasecmp(tmp2, data) == 0) {
+         //       printf("create_file_vector: existe déjà %s\n", data);
+                break;
+            }
+        }
+
+        if (strcasecmp(tmp2, data) == 0) {
+            fclose(f);
+            free(file_vector);
+            return 0;
+        }
+    }else{
+        f = fopen(file_vector, "a+");
+        
         if (f == NULL) {
             printf("create_file_vector: error create %s\n", file_vector);
+            free(file_vector);
             exit(1);
-        }
-    }
-    
-    while (fgets(tmp, 600, f) != NULL) {
-        tmp[strlen(tmp) - 1] = '\0';
-        
-        index = strtol(strtok(tmp, ";"), NULL, 10);
-        tmp2 = strtok(NULL, ";");
-        if (strcasecmp(tmp2, data) == 0) {
-            printf("create_file_vector: existe déjà %s\n", data);
-            return 0;
         }
     }
     fprintf(f, "%d;%s\n", index + 1, data);
     fflush(f);
     fclose(f);
+ */
+    free(file_vector);
     return 0;
 }
 
-char *find_file_vector(char *vector){
-    char *file_vector;
+char *find_file_name_vector(char *vector){
+    char *file_vector = (char *)malloc(sizeof(char) *53);
     CC_SHA1_CTX c;
-    unsigned char md[8];
+    unsigned char md[20];
     char hash[2*sizeof(md) + 1];
     int i;
     
@@ -102,15 +233,16 @@ char *find_file_vector(char *vector){
         snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
     }
     
-    strncat(file_vector, "vector_", 7);
-    strncat(file_vector, vector, 16);
-    
-    return strndup(file_vector, 23);
+    strncpy(file_vector, "test/vector_", 12);
+    strcpy(file_vector+12, hash);
+    file_vector[strlen(file_vector)] = '\0';
+
+    return file_vector;
 }
 
-unsigned int bit2int(char *a, unsigned int len){
+unsigned long bit2int(char *a, unsigned int len){
     int i;
-    unsigned int val = 0;
+    unsigned long val = 0;
     
     if (strlen(a) < len) {
         printf("bit2int: strlen(a) < len\n");
@@ -158,76 +290,102 @@ char *int2bit(int a, int len){
     return val;
 }
 
-int PUT(char *filtre){
+int put(char *filtre){
     FILE *f, *v;
-    static char file_name[7] = VA_FILE;
-    static char file_vector[512];
+
+    char file_name[128];
+    
+    strcpy(file_name, VA_FILE);
+    file_name[strlen(file_name)] = '\0';
     
     f = fopen(file_name, "r+");
     if (f == NULL) {
         f = fopen(file_name, "w+");
         if (f == NULL) {
-            printf("PUT: error create %s\n", file_name);
+            printf("PUT: error 1 create %s\n", file_name);
             exit(1);
         }
     }
-    
+
     char *vector_tmp = create_vector(filtre, min_dimension);
+
     int i;
     
-    char tmp[600];
+    char tmp[1<<20];
     int index = -1;
     char *tmp2, *tmp3;
 
     index = -1;
-    while (fgets(tmp, 600, f) != NULL) {
+    tmp2 = "";
+
+    i = 0;
+    while (fgets(tmp, 1<<20, f) != NULL) {
         tmp[strlen(tmp) - 1] = '\0';
+
         index = strtol(strtok(tmp, ";"), NULL, 10);
         tmp2 = strtok(NULL, ";");
         
         if (strcasecmp(tmp2, vector_tmp) == 0) {
-            printf("PUT: vecteur existe déjà %s\n", vector_tmp);
+            //printf("PUT: vecteur existe déjà %s\n", vector_tmp);
+            break;
         }
-        
+        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
     }
-    fprintf(f, "%d;%s\n", index + 1, vector_tmp);
-    fflush(f);
+    
+    if (strcasecmp(tmp2, vector_tmp) != 0) {
+        fprintf(f, "%d;%s\n", index + 1, vector_tmp);
+        fflush(f);
+    }
+    
 
     if (index == MAX_STORE) {
         min_dimension--;
         index = -1;
-        
         rewind(f);
         
-        FILE *temp = fopen("temp", "w+");
+        FILE *temp = fopen("test/temp", "w+");
         
         if (temp == NULL) {
             printf("PUT: create temp error\n");
             exit(1);
         }
-        
-        while (fgets(tmp, 600, f) != NULL) {
+
+        while (fgets(tmp, 1024, f) != NULL) {
+
             tmp[strlen(tmp) - 1] = '\0';
             i = strtol(strtok(tmp, ";"), NULL, 10);
-            tmp2 = strtok(NULL, ";");
-            
+            tmp2 = strdup(strtok(NULL, ";"));
+
             vector_tmp = create_vector(tmp2, 0);
-            
+
             index++;
             fprintf(temp, "%d;%s\n", index, vector_tmp);
             
             create_file_vector(vector_tmp, tmp2);
         }
-        rewind(f);
+        
+        fclose(f);
+        
+        f = fopen(file_name, "w+");
+        if (f == NULL) {
+            f = fopen(file_name, "w+");
+            if (f == NULL) {
+                printf("PUT: error 1 create %s\n", file_name);
+                exit(1);
+            }
+        }
+        
         rewind(temp);
-        while (fgets(tmp, 600, temp) != NULL) {
+        
+        while (fgets(tmp, 1<<20, temp) != NULL) {
             fputs(tmp, f);
         }
+        
         fclose(f);
         fclose(temp);
         remove("temp");
     }
-    
+
     for (i = min_dimension; i <= MAX_DIMENSION; i++) {
         if (i == MAX_DIMENSION) {
             vector_tmp = create_vector(filtre, i);
@@ -237,22 +395,14 @@ int PUT(char *filtre){
             create_file_vector(vector_tmp, create_vector(filtre, i + 1));
         }
     }
-    
+    fclose(f);
+
     return 0;
 }
 
 int main(int argc, char **argv){
-    char filtre[512];
-
-    int i;
-
-    for (i = 0; i < 512; i++) {
-        filtre[i] = i < 256 ? '0' : '1';
-    }
-    filtre[i] = '\0';
-    filtre[6] = '1';
-    PUT(filtre);
-
+    min_dimension = MAX_DIMENSION;
+    generator_filter(argv[1]);
     return 0;
 }
 
