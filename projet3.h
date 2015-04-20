@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <CommonCrypto/CommonDigest.h>
 
-#define DIR "."
+#define DIR "./"
 #define VA_FILE "test/va_file"
 
 #define MIN_FILTER 16

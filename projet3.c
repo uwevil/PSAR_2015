@@ -123,7 +123,8 @@ int generator_filter(char *name){
             snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
         }
 
-        strcpy(file_name, "test/");
+        strcpy(file_name, DIR);
+        strcat(file_name, "test/");
         strcat(file_name, hash);
         file_name[strlen(file_name)] = '\0';
 
@@ -138,12 +139,14 @@ int generator_filter(char *name){
 }
 
 char *create_vector(char *filtre,int n){
-    if ((n > 6) || (n == 1)) {
-        printf("create_vector: n > 6 or n < 2\n");
+    if (n > 6) {
+        printf("create_vector: n > 6 \n");
         return NULL;
     }
 
     if ((strlen(filtre) > MAX_FILTER) || (strlen(filtre) < MIN_FILTER)) {
+        printf("lolll-%s-%lu-%d\n", filtre, strlen(filtre), n);
+
         printf("create_vector: filtre > 512 or filter < 16\n");
         return NULL;
     }
@@ -233,7 +236,8 @@ char *find_file_name_vector(char *vector){
         snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
     }
     
-    strncpy(file_vector, "test/vector_", 12);
+    strncpy(file_vector, DIR, 2);
+    strncpy(file_vector+2, "test/vector_", 12);
     strcpy(file_vector+12, hash);
     file_vector[strlen(file_vector)] = '\0';
 
@@ -295,7 +299,8 @@ int put(char *filtre){
 
     char file_name[128];
     
-    strcpy(file_name, VA_FILE);
+    strcpy(file_name, DIR);
+    strcpy(file_name+2, VA_FILE);
     file_name[strlen(file_name)] = '\0';
     
     f = fopen(file_name, "r+");
@@ -338,12 +343,12 @@ int put(char *filtre){
     }
     
 
-    if (index == MAX_STORE) {
+    if ((index >= MAX_STORE) && (min_dimension >= 3)) {
         min_dimension--;
         index = -1;
         rewind(f);
         
-        FILE *temp = fopen("test/temp", "w+");
+        FILE *temp = fopen("./test/temp", "w+");
         
         if (temp == NULL) {
             printf("PUT: create temp error\n");
@@ -356,37 +361,35 @@ int put(char *filtre){
             i = strtol(strtok(tmp, ";"), NULL, 10);
             tmp2 = strdup(strtok(NULL, ";"));
 
-            vector_tmp = create_vector(tmp2, 0);
-
-            index++;
-            fprintf(temp, "%d;%s\n", index, vector_tmp);
-            
-            create_file_vector(vector_tmp, tmp2);
-        }
-        
-        fclose(f);
-        
-        f = fopen(file_name, "w+");
-        if (f == NULL) {
-            f = fopen(file_name, "w+");
-            if (f == NULL) {
-                printf("PUT: error 1 create %s\n", file_name);
-                exit(1);
+            if (strlen(tmp2) > 8) {
+                vector_tmp = create_vector(tmp2, 0);
+                index++;
+                fprintf(temp, "%d;%s\n", index, vector_tmp);
+                
+                create_file_vector(vector_tmp, tmp2);
             }
+           
         }
         
         rewind(temp);
+        fclose(f);
+
+        f = fopen(file_name, "w+");
+        if (f == NULL) {
+            printf("PUT: error 1 create %s\n", file_name);
+            exit(1);
+        }
+        
         
         while (fgets(tmp, 1<<20, temp) != NULL) {
             fputs(tmp, f);
         }
         
-        fclose(f);
         fclose(temp);
         remove("temp");
     }
 
-    for (i = min_dimension; i <= MAX_DIMENSION; i++) {
+    for (i = min_dimension; i <= MAX_DIMENSION && i >= 3; i++) {
         if (i == MAX_DIMENSION) {
             vector_tmp = create_vector(filtre, i);
             create_file_vector(vector_tmp, filtre);
@@ -395,8 +398,9 @@ int put(char *filtre){
             create_file_vector(vector_tmp, create_vector(filtre, i + 1));
         }
     }
+   
     fclose(f);
-
+   
     return 0;
 }
 
