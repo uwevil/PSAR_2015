@@ -61,7 +61,7 @@ char *create_filter(char *keyword, int size_filter){
         filter[i] = '0';
     }
     filter[i] = '\0';
-    
+
     tmp = keyword;
     key = strtok(tmp, ",");
     
@@ -79,6 +79,9 @@ char *create_filter(char *keyword, int size_filter){
         
         key = strtok(NULL, ",");
     }
+
+    filter[strlen(filter)] = '\0';
+
     return filter;
 }
 
@@ -105,6 +108,7 @@ int generator_filter(char *name){
     char hash[2*sizeof(md) + 1];
     int i, j = 0;
     char file_name[128];
+    char *f = "filter/";
 
     while (fgets(tmp, 1<<20, file_in) != NULL) {
         docUrl = strtok(tmp, ";");
@@ -124,16 +128,21 @@ int generator_filter(char *name){
         }
 
         strcpy(file_name, DIR);
-        strcat(file_name, "test/");
+        strcat(file_name, f);
         strcat(file_name, hash);
         file_name[strlen(file_name)] = '\0';
 
-      //  file_out = fopen(file_name, "a+");
-      //  fprintf(file_out, "%s\n", docUrl);
-      //  fclose(file_out);
+    //    printf("$%s$\n", docUrl);
+   //     file_out = fopen(file_name, "w+");
+
+   //     fprintf(file_out, "%s\n", docUrl);
+   //     fclose(file_out);
+    
         put(filter);
+        j++;
     }
     
+    printf("taille bench %d\n", j);
     fclose(file_in);
     return 0;
 }
@@ -153,17 +162,6 @@ char *create_vector(char *filtre,int n){
     char *tmp = filtre;
     int i, j = 0;
 
-    if (n == 0) {
-
-        for (i = 0; i < strlen(filtre); i = i + 8*pow(2, MAX_DIMENSION - min_dimension)){
-            strncpy(vector+j, tmp+i, 4);
-            j = j+4;
-        }
-
-        vector[j] = '\0';
-
-        return vector;
-    }
     for (i = 0; i < MAX_FILTER; i = i + 8*pow(2, MAX_DIMENSION - n)){
         strncpy(vector+j, tmp+i, 4);
         j = j+4;
@@ -181,7 +179,8 @@ int create_file_vector(char *vector, char *data){
     int index = -1, i;
 
     file_vector = find_file_name_vector(vector);
-/*
+    printf("file_vector : -%s-\n", file_vector);
+
     f = fopen(file_vector, "r+");
 
     if (f != NULL) {
@@ -214,16 +213,19 @@ int create_file_vector(char *vector, char *data){
     fprintf(f, "%d;%s\n", index + 1, data);
     fflush(f);
     fclose(f);
- */
+ 
     free(file_vector);
     return 0;
 }
 
 char *find_file_name_vector(char *vector){
-    char *file_vector = (char *)malloc(sizeof(char) *53);
+    char *file_vector = (char *)malloc(sizeof(char) *65);
+    memset((void *)file_vector, '\0', sizeof(char)*strlen(file_vector));
+
     CC_SHA1_CTX c;
     unsigned char md[20];
     char hash[2*sizeof(md) + 1];
+    char tmp[5];
     int i;
     
     CC_SHA1_Init(&c);
@@ -234,9 +236,40 @@ char *find_file_name_vector(char *vector){
         snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
     }
     
-    strncpy(file_vector, DIR, 2);
-    strncpy(file_vector+2, "test/vector_", 12);
-    strcpy(file_vector+12, hash);
+    switch (strlen(vector)) {
+        case 512:
+            sprintf(tmp, "%d/", 7);
+            break;
+            
+        case 256:
+            sprintf(tmp, "%d/", 6);
+            break;
+            
+        case 128:
+            sprintf(tmp, "%d/", 5);
+            break;
+            
+        case 64:
+            sprintf(tmp, "%d/", 4);
+            break;
+            
+        case 32:
+            sprintf(tmp, "%d/", 3);
+            break;
+            
+        case 16:
+            sprintf(tmp, "%d/", 2);
+            break;
+            
+        default:
+            sprintf(tmp, "%d/", 1);
+            break;
+    }
+
+    strncpy(file_vector, DIR, strlen(DIR));
+    strncpy(file_vector + (strlen(DIR)), tmp, 2 );
+    strncpy(file_vector + (strlen(DIR) + 2), VEC, strlen(VEC));
+    strcpy(file_vector + (strlen(DIR) + strlen(VEC) + 2), hash);
     file_vector[strlen(file_vector)] = '\0';
 
     return file_vector;
@@ -315,15 +348,15 @@ int put(char *filtre){
     
     char tmp[1<<20], tmp3[1<<20];
     int index = -1;
-    char *tmp2;
+    char *tmp2, *tmp4;
 
     index = -1;
     tmp2 = "";
-
+    tmp4 = "";
+    
     i = 0;
     
     int j;
-    char *tmp4;
     
     while (fgets(tmp, 1<<20, f) != NULL) {
         tmp[strlen(tmp) - 1] = '\0';
@@ -344,7 +377,7 @@ int put(char *filtre){
         fflush(f);
     }
     
-
+/*
     while ((index >= MAX_STORE) && (min_dimension >= 3)) {
         min_dimension--;
         index = -1;
@@ -381,8 +414,6 @@ int put(char *filtre){
                 fprintf(temp, "%d;%s\n", index, vector_tmp);
                 fflush(temp);
             }
-            create_file_vector(vector_tmp, tmp2);
-            
         
         }
     
@@ -403,9 +434,9 @@ int put(char *filtre){
     
         fclose(temp);
         remove("temp");
-    }
+    }*/
     
-    for (i = min_dimension; i <= MAX_DIMENSION && i >= 3; i++) {
+    for (i = min_dimension; i <= MAX_DIMENSION; i++) {
         if (i == MAX_DIMENSION) {
             vector_tmp = create_vector(filtre, i);
             create_file_vector(vector_tmp, filtre);
@@ -415,17 +446,17 @@ int put(char *filtre){
         }
     }
    
+  //  printf("vector_tmp:-%s-\n", vector_tmp);
     fclose(f);
    
     return 0;
 }
 
 int main(int argc, char **argv){
-    min_dimension = MAX_DIMENSION;
+    min_dimension = 1;
     generator_filter(argv[1]);
     return 0;
 }
-
 
 
 

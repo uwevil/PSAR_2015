@@ -23,14 +23,15 @@
 #include <unistd.h>
 #include <CommonCrypto/CommonDigest.h>
 
-#define DIR "./"
+#define DIR "./test/"
+#define VEC "vector_"
 #define VA_FILE "test/va_file"
 
-#define MIN_FILTER 16
+#define MIN_FILTER 8
 #define MAX_FILTER 512     //bit
 #define MAX_CHUNKS_SIZE 8  //bit
 #define MAX_DIMENSION 6    //2^6 = 64
-#define MAX_STORE 512      //seuil
+#define MAX_STORE 1     //seuil
 
 extern int min_dimension;
 
