@@ -452,9 +452,94 @@ int put(char *filtre){
     return 0;
 }
 
+char *search(char *filtre){
+    FILE *f, *v;
+    
+    char file_name[128];
+    
+    strcpy(file_name, DIR);
+    strcpy(file_name+2, VA_FILE);
+    file_name[strlen(file_name)] = '\0';
+    
+    f = fopen(file_name, "r+");
+  
+    if (f == NULL) {
+        printf("SEARCH: error 1 fopen %s\n", file_name);
+        exit(1);
+    }
+  
+    
+    char *vector_tmp = create_vector(filtre, min_dimension);
+    char res[1<<20];
+    int bit[512];
+    int i;
+    
+    for (i = 0; i < 512; i++) {
+        bit[i] = 0;
+    }
+    
+    char tmp[1<<20], tmp2[1<<20], *tmp3, tmp4[1<<20];
+    char *file_vector;
+    int index;
+    i = 0;
+    
+    memset((void *)res, '\0', sizeof(char)*strlen(res));
+
+    while (fgets(tmp, 1<<20, f) != NULL) {
+        tmp[strlen(tmp) - 1] = '\0';
+        
+        index = strtol(strtok(tmp, ";"), NULL, 10);
+        tmp2 = strtok(NULL, ";");
+        
+        if (AinB(vector_tmp, tmp2)) {
+            sprintf(res, "%s;", tmp2);
+        }
+    } //while
+    
+    res[strlen(res) - 1] = '\0';
+    if (strlen(res) == 0) {
+        printf("SEARCH: not found\n");
+        return NULL;
+    }
+    
+    tmp3 = strtok(res, ";");
+    for (i = min_dimension; i <= MAX_DIMENSION; i++) {
+        file_vector = find_file_name_vector(tmp2);
+        v = fopen(file_vector, "r");
+        if (v == NULL) {
+            break;
+        }
+        while (fgets(tmp3, 1<<20, v) != NULL) {
+            
+        }
+    }
+    
+}
+
+int AinB(char *a, char *b){
+    if (strlen(a) != strlen(b)) {
+        printf("size of != size of b\n");
+        return -1;
+    }
+    
+    int i;
+    
+    for (i = 0; i < strlen(a); i++) {
+        if (*(a+i) == '1') {
+            if (*(b+i) == '1') {
+                continue;
+            }else{
+                printf("A not in B\n");
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
 int main(int argc, char **argv){
     min_dimension = 1;
-    generator_filter(argv[1]);
+   // generator_filter(argv[1]);
     return 0;
 }
 
