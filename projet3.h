@@ -46,6 +46,6 @@ char *int2bit(int a, int len);
 int put(char *filtre);
 char *search(char *filter);
 int ainb(char *a, char *b);
-
+int generator_request(char *name);
 
 #endif /* defined(____projet__) */

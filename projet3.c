@@ -584,6 +584,45 @@ char *search(char *filtre){
     return resultat;
 }
 
+int generator_request(char *name){
+    FILE *file_in;
+    
+    file_in = fopen(name, "r");
+    if (file_in == NULL) {
+        printf("generator_request: error open file_in %s/n", name);
+        exit(1);
+    }
+    
+    char tmp[1<<20];
+    char *docUrl, *description, *filter, *res;
+    int nbreq, nbKeywords, pageRank;
+    
+    if (fgets(tmp, 1<<20, file_in) == NULL){
+        printf("generator_filter: file %s empty\n", name);
+        exit(1);
+    }
+    
+    int i, j = 0;
+    
+    while (fgets(tmp, 1<<20, file_in) != NULL) {
+        docUrl = strtok(tmp, ";");
+        description = strtok(NULL, ";");
+        pageRank = atoi(strtok(NULL, ";"));
+        nbreq = atoi(strtok(NULL, ";"));
+        nbKeywords = atoi(strtok(NULL, ";"));
+        
+        filter = create_filter(description, 512);
+        res = search(filter);
+        printf("------res-----\n--%s\n%s\n", description, res);
+        j++;
+    }
+    
+    printf("taille bench %d\n", j);
+
+    fclose(file_in);
+    return 0;
+}
+
 int ainb(char *a, char *b){
     if (strlen(a) != strlen(b)) {
         printf("size of != size of b\n");
@@ -607,6 +646,8 @@ int ainb(char *a, char *b){
 int main(int argc, char **argv){
     min_dimension = 1;
   //  generator_filter(argv[1]);
+    
+    generator_request(argv[1]);
     
     char * resultat = search("00000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000100000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000100000000000000000000000100000000000000001000000000000000000000000001000000000000000000000000000000000000000000000000000000000100000000000000000000000100000010000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
     
