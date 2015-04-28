@@ -414,11 +414,11 @@ int search(char *filtre){
     char vector_tmp[512];
     strcpy(vector_tmp , create_vector(filtre, min_dimension));
     
-    char res[1<<20];
+    char res[1<<20], res1[1<<20], res2[1<<19];
     int i;
   
     char tmp[1<<20], *tmp2, *tmp3, *tmp4;
-    char tmp22[1<<20], tmp33[1<<20], tmp44[1<<20], tmp444[1<<20];
+    char tmp22[1<<8], tmp33[1<<8], tmp44[1<<20], tmp444[1<<20], tmp4444[1<<19];
 
     char *file_vector;
     int index;
@@ -436,8 +436,6 @@ int search(char *filtre){
             sprintf(tmp22, "%s;", tmp2);
             strcat(res, tmp22);
         }
-        printf("max_size = %lu %lu\n", strlen(res), sizeof(res));
-
     }
     
     fclose(f);
@@ -448,8 +446,6 @@ int search(char *filtre){
         printf("SEARCH: not found\n");
         return 1;
     }
-
-    printf("res trouve %s\n", res);
     
     char *r;
     for (i = (min_dimension + 1); i <= MAX_DIMENSION; i++) {
@@ -459,6 +455,9 @@ int search(char *filtre){
 
         memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
         memset((void *)tmp44, '\0', sizeof(char)*strlen(tmp44));
+        memset((void *)tmp444, '\0', sizeof(char)*strlen(tmp444));
+        memset((void *)tmp4444, '\0', sizeof(char)*strlen(tmp4444));
+
         memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
 
         strcpy(vector_tmp , create_vector(filtre, i));
@@ -486,12 +485,18 @@ int search(char *filtre){
 
                     sprintf(tmp33, "%s;", tmp3);
                     if (strlen(tmp44) >= 1048515) {
-                        strcat(tmp444, tmp33);
+                        if (strlen(tmp444) >= 1048515) {
+                            strcat(tmp4444, tmp33);
+                        }else{
+                            strcat(tmp444, tmp33);
+                        }
                     }else{
                         strcat(tmp44, tmp33);
                     }
                 }
-                printf("max_size = %lu %lu\n", strlen(tmp44), sizeof(tmp44));
+                printf("max_size2 = %lu %lu\n", strlen(tmp44), sizeof(tmp44));
+                printf("max_size2 = %lu %lu\n", strlen(tmp444), sizeof(tmp444));
+                printf("max_size2 = %lu %lu\n", strlen(tmp4444), sizeof(tmp4444));
 
             }
            
@@ -499,13 +504,122 @@ int search(char *filtre){
             tmp2 = strsep(&r, ";");
         }
         
-       
+        if (strlen(res1) != 0) {
+            r = strdup(res1);
+            tmp2 = strsep(&r, ";");
+            
+            memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
+            memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
+            
+            strcpy(vector_tmp , create_vector(filtre, i));
+            
+            while (tmp2 != NULL) {
+                
+                file_vector = find_file_name_vector(tmp2);
+                
+                f = fopen(file_vector, "r");
+                
+                if (f == NULL) {
+                    break;
+                }
+                
+                memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
+                
+                index = -1;
+                while (fgets(tmp, 1<<20, f) != NULL) {
+                    tmp[strlen(tmp) - 1] = '\0';
+                    
+                    index = strtol(strtok(tmp, ";"), NULL, 10);
+                    tmp3 = strtok(NULL, ";");
+                    
+                    if (ainb(vector_tmp, tmp3)) {
+                        
+                        sprintf(tmp33, "%s;", tmp3);
+                        if (strlen(tmp44) >= 1048515) {
+                            if (strlen(tmp444) >= 1048515) {
+                                strcat(tmp4444, tmp33);
+                            }else{
+                                strcat(tmp444, tmp33);
+                            }
+                        }else{
+                            strcat(tmp44, tmp33);
+                        }
+                    }
+                    printf("max_size3 = %lu %lu\n", strlen(tmp44), sizeof(tmp44));
+                    printf("max_size3 = %lu %lu\n", strlen(tmp444), sizeof(tmp444));
+                    
+                }
+                
+                fclose(f);
+                tmp2 = strsep(&r, ";");
+            }//while
+           
+        }//if res1!= NULL
+        
+        if (strlen(res2) != 0) {
+            r = strdup(res2);
+            tmp2 = strsep(&r, ";");
+            
+            memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
+            memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
+            
+            strcpy(vector_tmp , create_vector(filtre, i));
+            
+            while (tmp2 != NULL) {
+                
+                file_vector = find_file_name_vector(tmp2);
+                
+                f = fopen(file_vector, "r");
+                
+                if (f == NULL) {
+                    break;
+                }
+                
+                memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
+                
+                index = -1;
+                while (fgets(tmp, 1<<20, f) != NULL) {
+                    tmp[strlen(tmp) - 1] = '\0';
+                    
+                    index = strtol(strtok(tmp, ";"), NULL, 10);
+                    tmp3 = strtok(NULL, ";");
+                    
+                    if (ainb(vector_tmp, tmp3)) {
+                        
+                        sprintf(tmp33, "%s;", tmp3);
+                        if (strlen(tmp44) >= 1048515) {
+                            if (strlen(tmp444) >= 1048515) {
+                                strcat(tmp4444, tmp33);
+                            }else{
+                                strcat(tmp444, tmp33);
+                            }
+                        }else{
+                            strcat(tmp44, tmp33);
+                        }
+                    }
+                    printf("max_size3 = %lu %lu\n", strlen(tmp44), sizeof(tmp44));
+                    printf("max_size3 = %lu %lu\n", strlen(tmp444), sizeof(tmp444));
+                    
+                }
+                
+                fclose(f);
+                tmp2 = strsep(&r, ";");
+            }//while
+            
+        }//if res2!= NULL
+        
         tmp44[strlen(tmp44) - 1] = '\0';
-
         memset((void *)res, '\0', sizeof(char)*strlen(res));
         strcpy(res, tmp44);
+        
+        tmp44[strlen(tmp444) - 1] = '\0';
+        memset((void *)res1, '\0', sizeof(char)*strlen(res1));
+        strcpy(res1, tmp444);
+        
+        tmp44[strlen(tmp4444) - 1] = '\0';
+        memset((void *)res2, '\0', sizeof(char)*strlen(res2));
+        strcpy(res2, tmp4444);
     }
-    
     
     r = strdup(res);
     tmp2 = strsep(&r, ";");
@@ -544,10 +658,97 @@ int search(char *filtre){
         tmp2 = strsep(&r, ";");
     }
     
-    tmp44[strlen(tmp44) - 1] = '\0';
+    if (strlen(res1) != 0) {
+        r = strdup(res1);
+        tmp2 = strsep(&r, ";");
+        
+        memset((void *)tmp444, '\0', sizeof(char)*strlen(tmp444));
+        memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
+        
+        while (tmp2 != NULL) {
+            
+            file_vector = find_file_name_vector(tmp2);
+            
+            f = fopen(file_vector, "r");
+            
+            if (f == NULL) {
+                break;
+            }
+            
+            memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
+            
+            index = -1;
+            while (fgets(tmp, 1<<20, f) != NULL) {
+                tmp[strlen(tmp) - 1] = '\0';
+                
+                index = strtol(strtok(tmp, ";"), NULL, 10);
+                tmp3 = strtok(NULL, ";");
+                
+                if (ainb(filtre, tmp3)) {
+                    sprintf(tmp33, "%s;", tmp3);
+                    strcat(tmp444, tmp33);
+                }
+                
+            }
+            
+            fclose(f);
+            
+            tmp2 = strsep(&r, ";");
+        }
+
+    }
     
+    if (strlen(res2) != 0) {
+        r = strdup(res1);
+        tmp2 = strsep(&r, ";");
+        
+        memset((void *)tmp4444, '\0', sizeof(char)*strlen(tmp4444));
+        memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
+        
+        while (tmp2 != NULL) {
+            
+            file_vector = find_file_name_vector(tmp2);
+            
+            f = fopen(file_vector, "r");
+            
+            if (f == NULL) {
+                break;
+            }
+            
+            memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
+            
+            index = -1;
+            while (fgets(tmp, 1<<20, f) != NULL) {
+                tmp[strlen(tmp) - 1] = '\0';
+                
+                index = strtol(strtok(tmp, ";"), NULL, 10);
+                tmp3 = strtok(NULL, ";");
+                
+                if (ainb(filtre, tmp3)) {
+                    sprintf(tmp33, "%s;", tmp3);
+                    strcat(tmp4444, tmp33);
+                }
+                
+            }
+            
+            fclose(f);
+            
+            tmp2 = strsep(&r, ";");
+        }
+        
+    }
+    
+    tmp44[strlen(tmp44) - 1] = '\0';
     memset((void *)res, '\0', sizeof(char)*strlen(res));
     strcpy(res, tmp44);
+    
+    tmp444[strlen(tmp444) - 1] = '\0';
+    memset((void *)res1, '\0', sizeof(char)*strlen(res1));
+    strcpy(res1, tmp444);
+    
+    tmp44[strlen(tmp4444) - 1] = '\0';
+    memset((void *)res2, '\0', sizeof(char)*strlen(res2));
+    strcpy(res2, tmp4444);
     
     CC_SHA1_CTX c;
     unsigned char md[20];
