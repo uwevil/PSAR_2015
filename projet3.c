@@ -395,9 +395,9 @@ int put(char *filtre){
 
 int search(char *filtre){
 
-    FILE *f, *v;
+    FILE *f, *v, *t;
 
-    char file_name[128];
+    char file_name[128], file_out[128], *file_in;
     
     strcpy(file_name, DIR);
     strcpy(file_name+2, VA_FILE);
@@ -414,19 +414,21 @@ int search(char *filtre){
     char vector_tmp[512];
     strcpy(vector_tmp , create_vector(filtre, min_dimension));
     
-    char res[1<<20], res1[1<<20], res2[1<<19], res3[1<19], res4[1<<17], res5[1<<17], res6[1<<15];
     int i;
   
-    char tmp[1<<20], *tmp2, *tmp3, *tmp4;
-    char tmp22[1<<8], tmp33[1<<8];
-    char tmp44[1<<20], tmp444[1<<20], tmp4444[1<<19], tmp44444[1<<19], tmp444444[17], tmp4444444[1<<17], tmp44444444[1<<15];
-
+    char tmp[1<<20], *tmp2, tmp1[1<<20], *tmp3;
+    
     char *file_vector;
     int index;
     i = 0;
     
-    memset((void *)res, '\0', sizeof(char)*strlen(res));
-
+    sprintf(file_out, "%d", min_dimension);
+    v = fopen(file_out, "w");
+    
+    if (v == NULL) {
+        printf("SEARCH: error 1 fopen %s\n", file_name);
+        exit(1);
+    }
     while (fgets(tmp, 1<<20, f) != NULL) {
         tmp[strlen(tmp) - 1] = '\0';
         
@@ -434,1039 +436,117 @@ int search(char *filtre){
         tmp2 = strtok(NULL, ";");
         
         if (ainb(vector_tmp, tmp2)) {
-            sprintf(tmp22, "%s;", tmp2);
-            strcat(res, tmp22);
+            fprintf(v, "%s\n", tmp2);
         }
     }
     
     fclose(f);
+    fclose(v);
     
-    res[strlen(res) - 1] = '\0';
-    
-    if (strlen(res) == 0) {
-        printf("SEARCH: not found\n");
-        return 1;
-    }
-    
-    char *r;
     for (i = (min_dimension + 1); i <= MAX_DIMENSION; i++) {
-        
-        r = strdup(res);
-        tmp2 = strsep(&r, ";");
-
         memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
-        memset((void *)tmp44, '\0', sizeof(char)*strlen(tmp44));
-        memset((void *)tmp444, '\0', sizeof(char)*strlen(tmp444));
-        memset((void *)tmp4444, '\0', sizeof(char)*strlen(tmp4444));
-        memset((void *)tmp44444, '\0', sizeof(char)*strlen(tmp44444));
-        memset((void *)tmp444444, '\0', sizeof(char)*strlen(tmp444444));
-        memset((void *)tmp4444444, '\0', sizeof(char)*strlen(tmp4444444));
-        memset((void *)tmp44444444, '\0', sizeof(char)*strlen(tmp44444444));
-
-
-
-        memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-
         strcpy(vector_tmp , create_vector(filtre, i));
-        
-        while (tmp2 != NULL) {
-            
-            file_vector = find_file_name_vector(tmp2);
-            
-            f = fopen(file_vector, "r");
-            
-            if (f == NULL) {
-                break;
-            }
-            
-            memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
 
-            index = -1;
-            while (fgets(tmp, 1<<20, f) != NULL) {
-                tmp[strlen(tmp) - 1] = '\0';
-                
-                index = strtol(strtok(tmp, ";"), NULL, 10);
-                tmp3 = strtok(NULL, ";");
-                
-                if (ainb(vector_tmp, tmp3)) {
-
-                    sprintf(tmp33, "%s;", tmp3);
-                    if (strlen(tmp44) >= sizeof(tmp44) - 256*sizeof(char)) {
-                        if (strlen(tmp444) >= sizeof(tmp444) - 256*sizeof(char)) {
-                            if (strlen(tmp4444) >= sizeof(tmp4444) - 256*sizeof(char)) {
-                                if (strlen(tmp44444) >= sizeof(tmp44444) - 256*sizeof(char)) {
-                                    if (strlen(tmp444444) >= sizeof(tmp444444)) {
-                                        if (strlen(tmp4444444) >= sizeof(tmp4444444)) {
-                                            strcat(tmp44444444, tmp33);
-                                        }else{
-                                            strcat(tmp4444444, tmp33);
-                                        }
-                                    }else{
-                                        strcat(tmp444444, tmp33);
-                                    }
-                                }else{
-                                    strcat(tmp44444, tmp33);
-                                }
-                            }else{
-                                strcat(tmp4444, tmp33);
-                            }
-                        }else{
-                            strcat(tmp444, tmp33);
-                        }
-                    }else{
-                        strcat(tmp44, tmp33);
-                    }
-                }
-                printf("%d %lu %lu %lu %lu %lu %lu %lu\n", i, strlen(tmp44), strlen(tmp444), strlen(tmp4444), strlen(tmp44444), strlen(tmp444444), strlen(tmp4444444), strlen(tmp44444444));
-            }
-           
-            fclose(f);
-            tmp2 = strsep(&r, ";");
-        }
+        sprintf( file_name, "%d", i-1);
+        file_name[1] = '\0';
         
-        if (strlen(res1) != 0) {
-            r = strdup(res1);
-            tmp2 = strsep(&r, ";");
-            
-            memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
-            memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-            
-            strcpy(vector_tmp , create_vector(filtre, i));
-            
-            while (tmp2 != NULL) {
-                
-                file_vector = find_file_name_vector(tmp2);
-                
-                f = fopen(file_vector, "r");
-                
-                if (f == NULL) {
-                    break;
-                }
-                
-                memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-                
-                index = -1;
-                while (fgets(tmp, 1<<20, f) != NULL) {
-                    tmp[strlen(tmp) - 1] = '\0';
-                    
-                    index = strtol(strtok(tmp, ";"), NULL, 10);
-                    tmp3 = strtok(NULL, ";");
-                    
-                    if (ainb(vector_tmp, tmp3)) {
-                        
-                        sprintf(tmp33, "%s;", tmp3);
-                        if (strlen(tmp44) >= sizeof(tmp44) - 256*sizeof(char)) {
-                            if (strlen(tmp444) >= sizeof(tmp444) - 256*sizeof(char)) {
-                                if (strlen(tmp4444) >= sizeof(tmp4444) - 256*sizeof(char)) {
-                                    if (strlen(tmp44444) >= sizeof(tmp44444) - 256*sizeof(char)) {
-                                        if (strlen(tmp444444) >= sizeof(tmp444444) - 256*sizeof(char)) {
-                                            if (strlen(tmp4444444) >= sizeof(tmp4444444) - 256*sizeof(char)) {
-                                                strcat(tmp44444444, tmp33);
-                                            }else{
-                                                strcat(tmp4444444, tmp33);
-                                            }
-                                        }else{
-                                            strcat(tmp444444, tmp33);
-                                        }
-                                    }else{
-                                        strcat(tmp44444, tmp33);
-                                    }
-                                }else{
-                                    strcat(tmp4444, tmp33);
-                                }
-                            }else{
-                                strcat(tmp444, tmp33);
-                            }
-                        }else{
-                            strcat(tmp44, tmp33);
-                        }
-                    }
-                }
-                
-                fclose(f);
-                tmp2 = strsep(&r, ";");
-            }//while
-        }//if res1!= NULL
-        
-        if (strlen(res2) != 0) {
-            r = strdup(res2);
-            tmp2 = strsep(&r, ";");
-            
-            memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
-            memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-            
-            strcpy(vector_tmp , create_vector(filtre, i));
-            
-            while (tmp2 != NULL) {
-                
-                file_vector = find_file_name_vector(tmp2);
-                
-                f = fopen(file_vector, "r");
-                
-                if (f == NULL) {
-                    break;
-                }
-                
-                memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-                
-                index = -1;
-                while (fgets(tmp, 1<<20, f) != NULL) {
-                    tmp[strlen(tmp) - 1] = '\0';
-                    
-                    index = strtol(strtok(tmp, ";"), NULL, 10);
-                    tmp3 = strtok(NULL, ";");
-                    
-                    if (ainb(vector_tmp, tmp3)) {
-                        
-                        sprintf(tmp33, "%s;", tmp3);
-                        if (strlen(tmp44) >= sizeof(tmp44) - 256*sizeof(char)) {
-                            if (strlen(tmp444) >= sizeof(tmp444) - 256*sizeof(char)) {
-                                if (strlen(tmp4444) >= sizeof(tmp4444) - 256*sizeof(char)) {
-                                    if (strlen(tmp44444) >= sizeof(tmp44444) - 256*sizeof(char)) {
-                                        if (strlen(tmp444444) >= sizeof(tmp444444) - 256*sizeof(char)) {
-                                            if (strlen(tmp4444444) >= sizeof(tmp4444444) - 256*sizeof(char)) {
-                                                strcat(tmp44444444, tmp33);
-                                            }else{
-                                                strcat(tmp4444444, tmp33);
-                                            }
-                                        }else{
-                                            strcat(tmp444444, tmp33);
-                                        }
-                                    }else{
-                                        strcat(tmp44444, tmp33);
-                                    }
-                                }else{
-                                    strcat(tmp4444, tmp33);
-                                }
-                            }else{
-                                strcat(tmp444, tmp33);
-                            }
-                        }else{
-                            strcat(tmp44, tmp33);
-                        }
-                    }
-                }
-                
-                fclose(f);
-                tmp2 = strsep(&r, ";");
-            }//while
-        }//if res2!= NULL
-        
-        if (strlen(res3) != 0) {
-            r = strdup(res3);
-            tmp2 = strsep(&r, ";");
-            
-            memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
-            memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-            
-            strcpy(vector_tmp , create_vector(filtre, i));
-            
-            while (tmp2 != NULL) {
-                
-                file_vector = find_file_name_vector(tmp2);
-                
-                f = fopen(file_vector, "r");
-                
-                if (f == NULL) {
-                    break;
-                }
-                
-                memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-                
-                index = -1;
-                while (fgets(tmp, 1<<20, f) != NULL) {
-                    tmp[strlen(tmp) - 1] = '\0';
-                    
-                    index = strtol(strtok(tmp, ";"), NULL, 10);
-                    tmp3 = strtok(NULL, ";");
-                    
-                    if (ainb(vector_tmp, tmp3)) {
-                        
-                        sprintf(tmp33, "%s;", tmp3);
-                        if (strlen(tmp44) >= sizeof(tmp44) - 256*sizeof(char)) {
-                            if (strlen(tmp444) >= sizeof(tmp444) - 256*sizeof(char)) {
-                                if (strlen(tmp4444) >= sizeof(tmp4444) - 256*sizeof(char)) {
-                                    if (strlen(tmp44444) >= sizeof(tmp44444) - 256*sizeof(char)) {
-                                        if (strlen(tmp444444) >= sizeof(tmp444444) - 256*sizeof(char)) {
-                                            if (strlen(tmp4444444) >= sizeof(tmp4444444) - 256*sizeof(char)) {
-                                                strcat(tmp44444444, tmp33);
-                                            }else{
-                                                strcat(tmp4444444, tmp33);
-                                            }
-                                        }else{
-                                            strcat(tmp444444, tmp33);
-                                        }
-                                    }else{
-                                        strcat(tmp44444, tmp33);
-                                    }
-                                }else{
-                                    strcat(tmp4444, tmp33);
-                                }
-                            }else{
-                                strcat(tmp444, tmp33);
-                            }
-                        }else{
-                            strcat(tmp44, tmp33);
-                        }
-                    }
-                }
-                
-                fclose(f);
-                tmp2 = strsep(&r, ";");
-            }//while
-        }//if res3!= NULL
-        
-        if (strlen(res4) != 0) {
-            r = strdup(res4);
-            tmp2 = strsep(&r, ";");
-            
-            memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
-            memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-            
-            strcpy(vector_tmp , create_vector(filtre, i));
-            
-            while (tmp2 != NULL) {
-                
-                file_vector = find_file_name_vector(tmp2);
-                
-                f = fopen(file_vector, "r");
-                
-                if (f == NULL) {
-                    break;
-                }
-                
-                memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-                
-                index = -1;
-                while (fgets(tmp, 1<<20, f) != NULL) {
-                    tmp[strlen(tmp) - 1] = '\0';
-                    
-                    index = strtol(strtok(tmp, ";"), NULL, 10);
-                    tmp3 = strtok(NULL, ";");
-                    
-                    if (ainb(vector_tmp, tmp3)) {
-                        
-                        sprintf(tmp33, "%s;", tmp3);
-                        if (strlen(tmp44) >= sizeof(tmp44) - 256*sizeof(char)) {
-                            if (strlen(tmp444) >= sizeof(tmp444) - 256*sizeof(char)) {
-                                if (strlen(tmp4444) >= sizeof(tmp4444) - 256*sizeof(char)) {
-                                    if (strlen(tmp44444) >= sizeof(tmp44444) - 256*sizeof(char)) {
-                                        if (strlen(tmp444444) >= sizeof(tmp444444) - 256*sizeof(char)) {
-                                            if (strlen(tmp4444444) >= sizeof(tmp4444444) - 256*sizeof(char)) {
-                                                strcat(tmp44444444, tmp33);
-                                            }else{
-                                                strcat(tmp4444444, tmp33);
-                                            }
-                                        }else{
-                                            strcat(tmp444444, tmp33);
-                                        }
-                                    }else{
-                                        strcat(tmp44444, tmp33);
-                                    }
-                                }else{
-                                    strcat(tmp4444, tmp33);
-                                }
-                            }else{
-                                strcat(tmp444, tmp33);
-                            }
-                        }else{
-                            strcat(tmp44, tmp33);
-                        }
-                    }
-                }
-                
-                fclose(f);
-                tmp2 = strsep(&r, ";");
-            }//while
-        }//if res4!= NULL
-        
-        if (strlen(res5) != 0) {
-            r = strdup(res5);
-            tmp2 = strsep(&r, ";");
-            
-            memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
-            memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-            
-            strcpy(vector_tmp , create_vector(filtre, i));
-            
-            while (tmp2 != NULL) {
-                
-                file_vector = find_file_name_vector(tmp2);
-                
-                f = fopen(file_vector, "r");
-                
-                if (f == NULL) {
-                    break;
-                }
-                
-                memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-                
-                index = -1;
-                while (fgets(tmp, 1<<20, f) != NULL) {
-                    tmp[strlen(tmp) - 1] = '\0';
-                    
-                    index = strtol(strtok(tmp, ";"), NULL, 10);
-                    tmp3 = strtok(NULL, ";");
-                    
-                    if (ainb(vector_tmp, tmp3)) {
-                        
-                        sprintf(tmp33, "%s;", tmp3);
-                        if (strlen(tmp44) >= sizeof(tmp44) - 256*sizeof(char)) {
-                            if (strlen(tmp444) >= sizeof(tmp444) - 256*sizeof(char)) {
-                                if (strlen(tmp4444) >= sizeof(tmp4444) - 256*sizeof(char)) {
-                                    if (strlen(tmp44444) >= sizeof(tmp44444) - 256*sizeof(char)) {
-                                        if (strlen(tmp444444) >= sizeof(tmp444444) - 256*sizeof(char)) {
-                                            if (strlen(tmp4444444) >= sizeof(tmp4444444) - 256*sizeof(char)) {
-                                                strcat(tmp44444444, tmp33);
-                                            }else{
-                                                strcat(tmp4444444, tmp33);
-                                            }
-                                        }else{
-                                            strcat(tmp444444, tmp33);
-                                        }
-                                    }else{
-                                        strcat(tmp44444, tmp33);
-                                    }
-                                }else{
-                                    strcat(tmp4444, tmp33);
-                                }
-                            }else{
-                                strcat(tmp444, tmp33);
-                            }
-                        }else{
-                            strcat(tmp44, tmp33);
-                        }
-                    }
-                }
-                
-                fclose(f);
-                tmp2 = strsep(&r, ";");
-            }//while
-        }//if res5!= NULL
-        
-        if (strlen(res6) != 0) {
-            r = strdup(res6);
-            tmp2 = strsep(&r, ";");
-            
-            memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
-            memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-            
-            strcpy(vector_tmp , create_vector(filtre, i));
-            
-            while (tmp2 != NULL) {
-                
-                file_vector = find_file_name_vector(tmp2);
-                
-                f = fopen(file_vector, "r");
-                
-                if (f == NULL) {
-                    break;
-                }
-                
-                memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-                
-                index = -1;
-                while (fgets(tmp, 1<<20, f) != NULL) {
-                    tmp[strlen(tmp) - 1] = '\0';
-                    
-                    index = strtol(strtok(tmp, ";"), NULL, 10);
-                    tmp3 = strtok(NULL, ";");
-                    
-                    if (ainb(vector_tmp, tmp3)) {
-                        
-                        sprintf(tmp33, "%s;", tmp3);
-                        if (strlen(tmp44) >= sizeof(tmp44) - 256*sizeof(char)) {
-                            if (strlen(tmp444) >= sizeof(tmp444) - 256*sizeof(char)) {
-                                if (strlen(tmp4444) >= sizeof(tmp4444) - 256*sizeof(char)) {
-                                    if (strlen(tmp44444) >= sizeof(tmp44444) - 256*sizeof(char)) {
-                                        if (strlen(tmp444444) >= sizeof(tmp444444) - 256*sizeof(char)) {
-                                            if (strlen(tmp4444444) >= sizeof(tmp4444444) - 256*sizeof(char)) {
-                                                strcat(tmp44444444, tmp33);
-                                            }else{
-                                                strcat(tmp4444444, tmp33);
-                                            }
-                                        }else{
-                                            strcat(tmp444444, tmp33);
-                                        }
-                                    }else{
-                                        strcat(tmp44444, tmp33);
-                                    }
-                                }else{
-                                    strcat(tmp4444, tmp33);
-                                }
-                            }else{
-                                strcat(tmp444, tmp33);
-                            }
-                        }else{
-                            strcat(tmp44, tmp33);
-                        }
-                    }
-                }
-                
-                fclose(f);
-                tmp2 = strsep(&r, ";");
-            }//while
-        }//if res6!= NULL
-        
-        tmp44[strlen(tmp44) - 1] = '\0';
-        memset((void *)res, '\0', sizeof(char)*strlen(res));
-        strcpy(res, tmp44);
-        
-        tmp444[strlen(tmp444) - 1] = '\0';
-        memset((void *)res1, '\0', sizeof(char)*strlen(res1));
-        strcpy(res1, tmp444);
-        
-        tmp4444[strlen(tmp4444) - 1] = '\0';
-        memset((void *)res2, '\0', sizeof(char)*strlen(res2));
-        strcpy(res2, tmp4444);
-        
-        tmp44444[strlen(tmp44444) - 1] = '\0';
-        memset((void *)res3, '\0', sizeof(char)*strlen(res3));
-        strcpy(res3, tmp44444);
-        
-        tmp444444[strlen(tmp444444) - 1] = '\0';
-        memset((void *)res4, '\0', sizeof(char)*strlen(res4));
-        strcpy(res4, tmp444444);
-        
-        tmp4444444[strlen(tmp4444444) - 1] = '\0';
-        memset((void *)res5, '\0', sizeof(char)*strlen(res5));
-        strcpy(res5, tmp4444444);
-        
-        tmp44444444[strlen(tmp44444444) - 1] = '\0';
-        memset((void *)res6, '\0', sizeof(char)*strlen(res6));
-        strcpy(res6, tmp44444444);
-        
-        printf("%d \n", i);
-
-    }
-    
-    r = strdup(res);
-    tmp2 = strsep(&r, ";");
-        
-    memset((void *)tmp44, '\0', sizeof(char)*strlen(tmp44));
-    memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-    
-    while (tmp2 != NULL) {
-        
-        file_vector = find_file_name_vector(tmp2);
-        
-        f = fopen(file_vector, "r");
-        
+        f = fopen(file_name, "r");
         if (f == NULL) {
-            break;
+            printf("SEARCH: error 2 fopen %s\n", file_name);
+            exit(1);
         }
         
-        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
+        sprintf( file_out, "%d", i);
+        file_name[1] = '\0';
         
-        index = -1;
+        v = fopen(file_out, "w");
+        if (v == NULL) {
+            printf("SEARCH: error 2 fopen %s\n", file_name);
+            exit(1);
+        }
+        
         while (fgets(tmp, 1<<20, f) != NULL) {
             tmp[strlen(tmp) - 1] = '\0';
             
-            index = strtol(strtok(tmp, ";"), NULL, 10);
-            tmp3 = strtok(NULL, ";");
             
-            if (ainb(filtre, tmp3)) {
-                sprintf(tmp33, "%s;", tmp3);
-                strcat(tmp44, tmp33);
+            file_in = find_file_name_vector(tmp);
+            
+            t = fopen(file_in, "r");
+            if (f == NULL) {
+                printf("SEARCH: error 2 fopen %s\n", file_in);
+                exit(1);
             }
             
-        }
-        
-        fclose(f);
+            while (fgets(tmp1, 1<<20, t) != NULL) {
+                tmp1[strlen(tmp1) - 1] = '\0';
+                
+                index = strtol(strtok(tmp1, ";"), NULL, 10);
+                tmp3 = strtok(NULL, ";");
 
-        tmp2 = strsep(&r, ";");
-    }
-    
-    if (strlen(res1) != 0) {
-        r = strdup(res1);
-        tmp2 = strsep(&r, ";");
-        
-        memset((void *)tmp444, '\0', sizeof(char)*strlen(tmp444));
-        memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-        
-        while (tmp2 != NULL) {
-            
-            file_vector = find_file_name_vector(tmp2);
-            
-            f = fopen(file_vector, "r");
-            
-            if (f == NULL) {
-                break;
-            }
-            
-            memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-            
-            index = -1;
-            while (fgets(tmp, 1<<20, f) != NULL) {
-                tmp[strlen(tmp) - 1] = '\0';
-                
-                index = strtol(strtok(tmp, ";"), NULL, 10);
-                tmp3 = strtok(NULL, ";");
-                
-                if (ainb(filtre, tmp3)) {
-                    sprintf(tmp33, "%s;", tmp3);
-                    strcat(tmp444, tmp33);
+                if (ainb(vector_tmp, tmp3)) {
+                    fprintf(v, "%s\n", tmp3);
                 }
-                
+                memset((void *)tmp1, '\0', sizeof(char)*strlen(tmp1));
+
             }
-            
-            fclose(f);
-            
-            tmp2 = strsep(&r, ";");
-        }
-    }
-    
-    if (strlen(res2) != 0) {
-        r = strdup(res2);
-        tmp2 = strsep(&r, ";");
-        
-        memset((void *)tmp4444, '\0', sizeof(char)*strlen(tmp4444));
-        memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-        
-        while (tmp2 != NULL) {
-            
-            file_vector = find_file_name_vector(tmp2);
-            
-            f = fopen(file_vector, "r");
-            
-            if (f == NULL) {
-                break;
-            }
-            
+            fclose(t);
             memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-            
-            index = -1;
-            while (fgets(tmp, 1<<20, f) != NULL) {
-                tmp[strlen(tmp) - 1] = '\0';
-                
-                index = strtol(strtok(tmp, ";"), NULL, 10);
-                tmp3 = strtok(NULL, ";");
-                
-                if (ainb(filtre, tmp3)) {
-                    sprintf(tmp33, "%s;", tmp3);
-                    strcat(tmp4444, tmp33);
-                }
-                
-            }
-            
-            fclose(f);
-            
-            tmp2 = strsep(&r, ";");
         }
+        fclose(f);
+        fclose(v);
+        
     }
-    
-    if (strlen(res3) != 0) {
-        r = strdup(res3);
-        tmp2 = strsep(&r, ";");
-        
-        memset((void *)tmp44444, '\0', sizeof(char)*strlen(tmp44444));
-        memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-        
-        while (tmp2 != NULL) {
-            
-            file_vector = find_file_name_vector(tmp2);
-            
-            f = fopen(file_vector, "r");
-            
-            if (f == NULL) {
-                break;
-            }
-            
-            memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-            
-            index = -1;
-            while (fgets(tmp, 1<<20, f) != NULL) {
-                tmp[strlen(tmp) - 1] = '\0';
-                
-                index = strtol(strtok(tmp, ";"), NULL, 10);
-                tmp3 = strtok(NULL, ";");
-                
-                if (ainb(filtre, tmp3)) {
-                    sprintf(tmp33, "%s;", tmp3);
-                    strcat(tmp44444, tmp33);
-                }
-                
-            }
-            
-            fclose(f);
-            
-            tmp2 = strsep(&r, ";");
-        }
-    }
-    
-    if (strlen(res4) != 0) {
-        r = strdup(res4);
-        tmp2 = strsep(&r, ";");
-        
-        memset((void *)tmp444444, '\0', sizeof(char)*strlen(tmp444444));
-        memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-        
-        while (tmp2 != NULL) {
-            
-            file_vector = find_file_name_vector(tmp2);
-            
-            f = fopen(file_vector, "r");
-            
-            if (f == NULL) {
-                break;
-            }
-            
-            memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-            
-            index = -1;
-            while (fgets(tmp, 1<<20, f) != NULL) {
-                tmp[strlen(tmp) - 1] = '\0';
-                
-                index = strtol(strtok(tmp, ";"), NULL, 10);
-                tmp3 = strtok(NULL, ";");
-                
-                if (ainb(filtre, tmp3)) {
-                    sprintf(tmp33, "%s;", tmp3);
-                    strcat(tmp444444, tmp33);
-                }
-                
-            }
-            
-            fclose(f);
-            
-            tmp2 = strsep(&r, ";");
-        }
-    }
-    
-    if (strlen(res5) != 0) {
-        r = strdup(res5);
-        tmp2 = strsep(&r, ";");
-        
-        memset((void *)tmp4444444, '\0', sizeof(char)*strlen(tmp4444444));
-        memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-        
-        while (tmp2 != NULL) {
-            
-            file_vector = find_file_name_vector(tmp2);
-            
-            f = fopen(file_vector, "r");
-            
-            if (f == NULL) {
-                break;
-            }
-            
-            memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-            
-            index = -1;
-            while (fgets(tmp, 1<<20, f) != NULL) {
-                tmp[strlen(tmp) - 1] = '\0';
-                
-                index = strtol(strtok(tmp, ";"), NULL, 10);
-                tmp3 = strtok(NULL, ";");
-                
-                if (ainb(filtre, tmp3)) {
-                    sprintf(tmp33, "%s;", tmp3);
-                    strcat(tmp4444444, tmp33);
-                }
-                
-            }
-            
-            fclose(f);
-            
-            tmp2 = strsep(&r, ";");
-        }
-    }
-    
-    if (strlen(res6) != 0) {
-        r = strdup(res6);
-        tmp2 = strsep(&r, ";");
-        
-        memset((void *)tmp44444444, '\0', sizeof(char)*strlen(tmp44444444));
-        memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
-        
-        while (tmp2 != NULL) {
-            
-            file_vector = find_file_name_vector(tmp2);
-            
-            f = fopen(file_vector, "r");
-            
-            if (f == NULL) {
-                break;
-            }
-            
-            memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-            
-            index = -1;
-            while (fgets(tmp, 1<<20, f) != NULL) {
-                tmp[strlen(tmp) - 1] = '\0';
-                
-                index = strtol(strtok(tmp, ";"), NULL, 10);
-                tmp3 = strtok(NULL, ";");
-                
-                if (ainb(filtre, tmp3)) {
-                    sprintf(tmp33, "%s;", tmp3);
-                    strcat(tmp44444444, tmp33);
-                }
-                
-            }
-            
-            fclose(f);
-            
-            tmp2 = strsep(&r, ";");
-        }
-    }
-    
-    tmp44[strlen(tmp44) - 1] = '\0';
-    memset((void *)res, '\0', sizeof(char)*strlen(res));
-    strcpy(res, tmp44);
-    
-    tmp444[strlen(tmp444) - 1] = '\0';
-    memset((void *)res1, '\0', sizeof(char)*strlen(res1));
-    strcpy(res1, tmp444);
-    
-    tmp4444[strlen(tmp4444) - 1] = '\0';
-    memset((void *)res2, '\0', sizeof(char)*strlen(res2));
-    strcpy(res2, tmp4444);
-    
-    tmp44444[strlen(tmp44444) - 1] = '\0';
-    memset((void *)res3, '\0', sizeof(char)*strlen(res3));
-    strcpy(res3, tmp44444);
-    
-    tmp444444[strlen(tmp444444) - 1] = '\0';
-    memset((void *)res4, '\0', sizeof(char)*strlen(res4));
-    strcpy(res4, tmp444444);
-    
-    tmp4444444[strlen(tmp4444444) - 1] = '\0';
-    memset((void *)res5, '\0', sizeof(char)*strlen(res5));
-    strcpy(res5, tmp4444444);
-    
-    tmp44444444[strlen(tmp44444444) - 1] = '\0';
-    memset((void *)res6, '\0', sizeof(char)*strlen(res6));
-    strcpy(res6, tmp44444444);
     
     CC_SHA1_CTX c;
     unsigned char md[20];
     char hash[2*sizeof(md) + 1];
-    char *t = "filter/";
+    char *s = "filter/";
     
-    tmp2 = strtok(res, ";");
+    sprintf( file_name, "%d", i-1);
+    file_name[1] = '\0';
     
-    while (tmp2 != NULL) {
-        memset((void *)file_name, '\0', sizeof(char)*strlen(file_name));
+    f = fopen(file_name, "r");
+    if (f == NULL) {
+        printf("SEARCH: error 3 fopen %s\n", file_name);
+        exit(1);
+    }
+    
+    while (fgets(tmp, 1<<20, f) != NULL) {
+        tmp[strlen(tmp) - 1] = '\0';
+    
+        memset((void *)file_in, '\0', sizeof(char)*strlen(file_in));
+        
+        CC_SHA1_Init(&c);
+        CC_SHA1_Update(&c, (const void *)tmp, strlen(tmp));
+        CC_SHA1_Final(md, &c);
+        
+        for (i = 0; i < sizeof(md); i++) {
+            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
+        }
+        
+        strcpy(file_in, DIR);
+        strcat(file_in, s);
+        strcat(file_in, hash);
+        file_in[strlen(file_in)] = '\0';
+        
+        v = fopen(file_in, "r");
+        if (v == NULL) {
+            printf("SEARCH: error 2 fopen %s\n", file_name);
+            exit(1);
+        }
+        
+        memset((void *)tmp1, '\0', sizeof(char)*strlen(tmp1));
+        while (fgets(tmp1, 1<<20, v) != NULL) {
+            tmp1[strlen(tmp1) - 1] = '\0';
+            
+            printf("%s\n", tmp1);
+        }
+        fclose(v);
 
-        CC_SHA1_Init(&c);
-        CC_SHA1_Update(&c, (const void *)tmp2, strlen(tmp2));
-        CC_SHA1_Final(md, &c);
-        
-        for (i = 0; i < sizeof(md); i++) {
-            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
-        }
-        
-        strcpy(file_name, DIR);
-        strcat(file_name, t);
-        strcat(file_name, hash);
-        file_name[strlen(file_name)] = '\0';
-        
-        f = fopen(file_name, "r");
-        
         memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
 
-        while (fgets(tmp, 1<<20, f) != NULL) {
-            tmp[strlen(tmp) - 1] = '\0';
-            
-            printf("%s\n", tmp);
-        }
-        fclose(f);
-     
-        tmp2 = strtok(NULL, ";");
     }
-    
-    tmp2 = strtok(res1, ";");
-    
-    while (tmp2 != NULL) {
-        memset((void *)file_name, '\0', sizeof(char)*strlen(file_name));
-        
-        CC_SHA1_Init(&c);
-        CC_SHA1_Update(&c, (const void *)tmp2, strlen(tmp2));
-        CC_SHA1_Final(md, &c);
-        
-        for (i = 0; i < sizeof(md); i++) {
-            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
-        }
-        
-        strcpy(file_name, DIR);
-        strcat(file_name, t);
-        strcat(file_name, hash);
-        file_name[strlen(file_name)] = '\0';
-        
-        f = fopen(file_name, "r");
-        
-        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-        
-        while (fgets(tmp, 1<<20, f) != NULL) {
-            tmp[strlen(tmp) - 1] = '\0';
-            
-            printf("%s\n", tmp);
-        }
-        fclose(f);
-        
-        tmp2 = strtok(NULL, ";");
-    }
-    
-    tmp2 = strtok(res2, ";");
-    
-    while (tmp2 != NULL) {
-        memset((void *)file_name, '\0', sizeof(char)*strlen(file_name));
-        
-        CC_SHA1_Init(&c);
-        CC_SHA1_Update(&c, (const void *)tmp2, strlen(tmp2));
-        CC_SHA1_Final(md, &c);
-        
-        for (i = 0; i < sizeof(md); i++) {
-            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
-        }
-        
-        strcpy(file_name, DIR);
-        strcat(file_name, t);
-        strcat(file_name, hash);
-        file_name[strlen(file_name)] = '\0';
-        
-        f = fopen(file_name, "r");
-        
-        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-        
-        while (fgets(tmp, 1<<20, f) != NULL) {
-            tmp[strlen(tmp) - 1] = '\0';
-            
-            printf("%s\n", tmp);
-        }
-        fclose(f);
-        
-        tmp2 = strtok(NULL, ";");
-    }
-    
-    tmp2 = strtok(res3, ";");
-    
-    while (tmp2 != NULL) {
-        memset((void *)file_name, '\0', sizeof(char)*strlen(file_name));
-        
-        CC_SHA1_Init(&c);
-        CC_SHA1_Update(&c, (const void *)tmp2, strlen(tmp2));
-        CC_SHA1_Final(md, &c);
-        
-        for (i = 0; i < sizeof(md); i++) {
-            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
-        }
-        
-        strcpy(file_name, DIR);
-        strcat(file_name, t);
-        strcat(file_name, hash);
-        file_name[strlen(file_name)] = '\0';
-        
-        f = fopen(file_name, "r");
-        
-        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-        
-        while (fgets(tmp, 1<<20, f) != NULL) {
-            tmp[strlen(tmp) - 1] = '\0';
-            
-            printf("%s\n", tmp);
-        }
-        fclose(f);
-        
-        tmp2 = strtok(NULL, ";");
-    }
-    
-    tmp2 = strtok(res4, ";");
-    
-    while (tmp2 != NULL) {
-        memset((void *)file_name, '\0', sizeof(char)*strlen(file_name));
-        
-        CC_SHA1_Init(&c);
-        CC_SHA1_Update(&c, (const void *)tmp2, strlen(tmp2));
-        CC_SHA1_Final(md, &c);
-        
-        for (i = 0; i < sizeof(md); i++) {
-            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
-        }
-        
-        strcpy(file_name, DIR);
-        strcat(file_name, t);
-        strcat(file_name, hash);
-        file_name[strlen(file_name)] = '\0';
-        
-        f = fopen(file_name, "r");
-        
-        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-        
-        while (fgets(tmp, 1<<20, f) != NULL) {
-            tmp[strlen(tmp) - 1] = '\0';
-            
-            printf("%s\n", tmp);
-        }
-        fclose(f);
-        
-        tmp2 = strtok(NULL, ";");
-    }
-    
-    tmp2 = strtok(res5, ";");
-    
-    while (tmp2 != NULL) {
-        memset((void *)file_name, '\0', sizeof(char)*strlen(file_name));
-        
-        CC_SHA1_Init(&c);
-        CC_SHA1_Update(&c, (const void *)tmp2, strlen(tmp2));
-        CC_SHA1_Final(md, &c);
-        
-        for (i = 0; i < sizeof(md); i++) {
-            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
-        }
-        
-        strcpy(file_name, DIR);
-        strcat(file_name, t);
-        strcat(file_name, hash);
-        file_name[strlen(file_name)] = '\0';
-        
-        f = fopen(file_name, "r");
-        
-        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-        
-        while (fgets(tmp, 1<<20, f) != NULL) {
-            tmp[strlen(tmp) - 1] = '\0';
-            
-            printf("%s\n", tmp);
-        }
-        fclose(f);
-        
-        tmp2 = strtok(NULL, ";");
-    }
-    
-    tmp2 = strtok(res6, ";");
-    
-    while (tmp2 != NULL) {
-        memset((void *)file_name, '\0', sizeof(char)*strlen(file_name));
-        
-        CC_SHA1_Init(&c);
-        CC_SHA1_Update(&c, (const void *)tmp2, strlen(tmp2));
-        CC_SHA1_Final(md, &c);
-        
-        for (i = 0; i < sizeof(md); i++) {
-            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
-        }
-        
-        strcpy(file_name, DIR);
-        strcat(file_name, t);
-        strcat(file_name, hash);
-        file_name[strlen(file_name)] = '\0';
-        
-        f = fopen(file_name, "r");
-        
-        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-        
-        while (fgets(tmp, 1<<20, f) != NULL) {
-            tmp[strlen(tmp) - 1] = '\0';
-            
-            printf("%s\n", tmp);
-        }
-        fclose(f);
-        
-        tmp2 = strtok(NULL, ";");
-    }
+    fclose(f);
     
     return 0;
  
