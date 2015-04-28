@@ -495,8 +495,8 @@ int search(char *filtre){
                         if (strlen(tmp444) >= sizeof(tmp444) - 256*sizeof(char)) {
                             if (strlen(tmp4444) >= sizeof(tmp4444) - 256*sizeof(char)) {
                                 if (strlen(tmp44444) >= sizeof(tmp44444) - 256*sizeof(char)) {
-                                    if (strlen(tmp444444) >= sizeof(tmp444444) - 256*sizeof(char)) {
-                                        if (strlen(tmp4444444) >= sizeof(tmp4444444) - 256*sizeof(char)) {
+                                    if (strlen(tmp444444) >= sizeof(tmp444444)) {
+                                        if (strlen(tmp4444444) >= sizeof(tmp4444444)) {
                                             strcat(tmp44444444, tmp33);
                                         }else{
                                             strcat(tmp4444444, tmp33);
@@ -517,7 +517,7 @@ int search(char *filtre){
                         strcat(tmp44, tmp33);
                     }
                 }
-                printf("%lu %lu %lu %lu %lu %lu %lu\n", strlen(tmp44), strlen(tmp444), strlen(tmp4444), strlen(tmp44444), strlen(tmp444444), strlen(tmp4444444), strlen(tmp44444444));
+                printf("%d %lu %lu %lu %lu %lu %lu %lu\n", i, strlen(tmp44), strlen(tmp444), strlen(tmp4444), strlen(tmp44444), strlen(tmp444444), strlen(tmp4444444), strlen(tmp44444444));
             }
            
             fclose(f);
