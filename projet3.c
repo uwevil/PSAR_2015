@@ -416,7 +416,7 @@ int search(char *filtre){
     
     int i;
   
-    char tmp[1<<20], *tmp2, tmp1[1<<20], *tmp3;
+    char tmp[1<<20], *tmp2, tmp1[1<<20], *tmp3, tmp4[1<<20];
     
     char *file_vector;
     int index;
@@ -426,7 +426,7 @@ int search(char *filtre){
     v = fopen(file_out, "w");
     
     if (v == NULL) {
-        printf("SEARCH: error 1 fopen %s\n", file_name);
+        printf("SEARCH: error 2 fopen %s\n", file_name);
         exit(1);
     }
     while (fgets(tmp, 1<<20, f) != NULL) {
@@ -452,7 +452,7 @@ int search(char *filtre){
         
         f = fopen(file_name, "r");
         if (f == NULL) {
-            printf("SEARCH: error 2 fopen %s\n", file_name);
+            printf("SEARCH: error 3 fopen %s\n", file_name);
             exit(1);
         }
         
@@ -461,7 +461,7 @@ int search(char *filtre){
         
         v = fopen(file_out, "w");
         if (v == NULL) {
-            printf("SEARCH: error 2 fopen %s\n", file_name);
+            printf("SEARCH: error 4 fopen %s\n", file_name);
             exit(1);
         }
         
@@ -473,7 +473,7 @@ int search(char *filtre){
             
             t = fopen(file_in, "r");
             if (f == NULL) {
-                printf("SEARCH: error 2 fopen %s\n", file_in);
+                printf("SEARCH: error 5 fopen %s\n", file_in);
                 exit(1);
             }
             
@@ -502,49 +502,73 @@ int search(char *filtre){
     char hash[2*sizeof(md) + 1];
     char *s = "filter/";
     
-    sprintf( file_name, "%d", i-1);
+    sprintf( file_name, "%d", 6);
     file_name[1] = '\0';
     
     f = fopen(file_name, "r");
     if (f == NULL) {
-        printf("SEARCH: error 3 fopen %s\n", file_name);
+        printf("SEARCH: error 6 fopen %s\n", file_name);
         exit(1);
     }
+    
+    FILE *x;
     
     while (fgets(tmp, 1<<20, f) != NULL) {
         tmp[strlen(tmp) - 1] = '\0';
     
         memset((void *)file_in, '\0', sizeof(char)*strlen(file_in));
-        
-        CC_SHA1_Init(&c);
-        CC_SHA1_Update(&c, (const void *)tmp, strlen(tmp));
-        CC_SHA1_Final(md, &c);
-        
-        for (i = 0; i < sizeof(md); i++) {
-            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
-        }
-        
-        strcpy(file_in, DIR);
-        strcat(file_in, s);
-        strcat(file_in, hash);
-        file_in[strlen(file_in)] = '\0';
+        file_in = find_file_name_vector(tmp);
         
         v = fopen(file_in, "r");
         if (v == NULL) {
-            printf("SEARCH: error 2 fopen %s\n", file_name);
+            printf("%s\n", file_in);
+            printf("SEARCH: error 7 fopen %s\n", file_in);
             exit(1);
         }
         
-        memset((void *)tmp1, '\0', sizeof(char)*strlen(tmp1));
         while (fgets(tmp1, 1<<20, v) != NULL) {
             tmp1[strlen(tmp1) - 1] = '\0';
             
-            printf("%s\n", tmp1);
+            index = strtol(strtok(tmp1, ";"), NULL, 10);
+            tmp3 = strtok(NULL, ";");
+            
+            if (ainb(filtre, tmp3)) {
+                memset((void *)file_out, '\0', sizeof(char)*strlen(file_out));
+
+                CC_SHA1_Init(&c);
+                CC_SHA1_Update(&c, (const void *)tmp3, strlen(tmp3));
+                CC_SHA1_Final(md, &c);
+                
+                for (i = 0; i < sizeof(md); i++) {
+                    snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
+                }
+                
+                strcpy(file_out, DIR);
+                strcat(file_out, s);
+                strcat(file_out, hash);
+                file_out[strlen(file_in)] = '\0';
+                
+                x = fopen(file_out, "r");
+                if (x == NULL) {
+                    printf("%s\n", file_out);
+                    printf("SEARCH: error 8 fopen %s\n", file_out);
+                    exit(1);
+                }
+                
+                memset((void *)tmp4, '\0', sizeof(char)*strlen(tmp4));
+                while (fgets(tmp4, 1<<20, x) != NULL) {
+                    tmp4[strlen(tmp4) - 1] = '\0';
+                    
+                    printf("%s\n", tmp4);
+                    memset((void *)tmp4, '\0', sizeof(char)*strlen(tmp4));
+                }
+                fclose(x);
+            }
         }
-        fclose(v);
-
+        
         memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
-
+        memset((void *)tmp1, '\0', sizeof(char)*strlen(tmp1));
+        fclose(v);
     }
     fclose(f);
     
@@ -580,7 +604,6 @@ int generator_request(char *name){
         nbKeywords = atoi(strtok(NULL, ";"));
         
         filter = create_filter(description, 512);
-        printf("filter: -%s-\n", filter);
         search(filter);
         j++;
     }
@@ -613,14 +636,29 @@ int ainb(char *a, char *b){
 
 int main(int argc, char **argv){
     min_dimension = 1;
-  //  generator_filter(argv[1]);
+   // generator_filter(argv[1]);
     
     generator_request(argv[1]);
     
-    search("00000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000100000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000100000000000000000000000100000000000000001000000000000000000000000001000000000000000000000000000000000000000000000000000000000100000000000000000000000100000010000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
-    
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
