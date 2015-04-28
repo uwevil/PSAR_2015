@@ -44,7 +44,7 @@ char *create_vector(char *filtre, int n);
 unsigned long bit2int(char *a, unsigned int len);
 char *int2bit(int a, int len);
 int put(char *filtre);
-char *search(char *filter);
+int search(char *filter);
 int ainb(char *a, char *b);
 int generator_request(char *name);
 

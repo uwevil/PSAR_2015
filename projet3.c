@@ -393,31 +393,32 @@ int put(char *filtre){
     return 0;
 }
 
-char *search(char *filtre){
+int search(char *filtre){
+
     FILE *f, *v;
-    
+
     char file_name[128];
     
     strcpy(file_name, DIR);
     strcpy(file_name+2, VA_FILE);
     file_name[strlen(file_name)] = '\0';
     
-    f = fopen(file_name, "r+");
+    f = fopen(file_name, "r");
   
     if (f == NULL) {
         printf("SEARCH: error 1 fopen %s\n", file_name);
         exit(1);
     }
   
-    
+
     char vector_tmp[512];
     strcpy(vector_tmp , create_vector(filtre, min_dimension));
     
     char res[1<<20];
     int i;
-    
+  
     char tmp[1<<20], *tmp2, *tmp3, *tmp4;
-    char tmp22[1<<20], tmp33[1<<20], tmp44[1<<20];
+    char tmp22[1<<20], tmp33[1<<20], tmp44[1<<20], tmp444[1<<20];
 
     char *file_vector;
     int index;
@@ -435,7 +436,9 @@ char *search(char *filtre){
             sprintf(tmp22, "%s;", tmp2);
             strcat(res, tmp22);
         }
-    } //while
+        printf("max_size = %lu %lu\n", strlen(res), sizeof(res));
+
+    }
     
     fclose(f);
     
@@ -443,15 +446,17 @@ char *search(char *filtre){
     
     if (strlen(res) == 0) {
         printf("SEARCH: not found\n");
-        return NULL;
+        return 1;
     }
+
+    printf("res trouve %s\n", res);
     
     char *r;
     for (i = (min_dimension + 1); i <= MAX_DIMENSION; i++) {
         
         r = strdup(res);
         tmp2 = strsep(&r, ";");
-        
+
         memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
         memset((void *)tmp44, '\0', sizeof(char)*strlen(tmp44));
         memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
@@ -480,13 +485,17 @@ char *search(char *filtre){
                 if (ainb(vector_tmp, tmp3)) {
 
                     sprintf(tmp33, "%s;", tmp3);
-                    strcat(tmp44, tmp33);
+                    if (strlen(tmp44) >= 1048515) {
+                        strcat(tmp444, tmp33);
+                    }else{
+                        strcat(tmp44, tmp33);
+                    }
                 }
-                
+                printf("max_size = %lu %lu\n", strlen(tmp44), sizeof(tmp44));
+
             }
            
             fclose(f);
-           
             tmp2 = strsep(&r, ";");
         }
         
@@ -531,10 +540,9 @@ char *search(char *filtre){
         }
         
         fclose(f);
-        
+
         tmp2 = strsep(&r, ";");
     }
-    
     
     tmp44[strlen(tmp44) - 1] = '\0';
     
@@ -571,17 +579,15 @@ char *search(char *filtre){
 
         while (fgets(tmp, 1<<20, f) != NULL) {
             tmp[strlen(tmp) - 1] = '\0';
-
-            sprintf(tmp3, "%s\n", tmp);
-            strcat(resultat, tmp3);
+/////////////////////////
         }
         fclose(f);
      
         tmp2 = strtok(NULL, ";");
     }
     
-    resultat[strlen(resultat) - 1] = '\0';
-    return resultat;
+    return 0;
+ 
 }
 
 int generator_request(char *name){
@@ -594,7 +600,7 @@ int generator_request(char *name){
     }
     
     char tmp[1<<20];
-    char *docUrl, *description, *filter, *res;
+    char *docUrl, *description, *filter;
     int nbreq, nbKeywords, pageRank;
     
     if (fgets(tmp, 1<<20, file_in) == NULL){
@@ -612,8 +618,8 @@ int generator_request(char *name){
         nbKeywords = atoi(strtok(NULL, ";"));
         
         filter = create_filter(description, 512);
-        res = search(filter);
-        printf("------res-----\n--%s\n%s\n", description, res);
+        printf("filter: -%s-\n", filter);
+        search(filter);
         j++;
     }
     
@@ -649,9 +655,8 @@ int main(int argc, char **argv){
     
     generator_request(argv[1]);
     
-    char * resultat = search("00000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000100000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000100000000000000000000000100000000000000001000000000000000000000000001000000000000000000000000000000000000000000000000000000000100000000000000000000000100000010000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+    search("00000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000100000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000100000000000000000000000100000000000000001000000000000000000000000001000000000000000000000000000000000000000000000000000000000100000000000000000000000100000010000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
     
-    printf("résultat requete:\n%s\n", resultat);
     return 0;
 }
 
