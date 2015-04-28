@@ -132,11 +132,10 @@ int generator_filter(char *name){
         strcat(file_name, hash);
         file_name[strlen(file_name)] = '\0';
 
-    //    printf("$%s$\n", docUrl);
-   //     file_out = fopen(file_name, "w+");
+        file_out = fopen(file_name, "w+");
 
-   //     fprintf(file_out, "%s\n", docUrl);
-   //     fclose(file_out);
+        fprintf(file_out, "%s\n", docUrl);
+        fclose(file_out);
     
         put(filter);
         j++;
@@ -389,7 +388,6 @@ int put(char *filtre){
         }
     }
    
-  //  printf("vector_tmp:-%s-\n", vector_tmp);
     fclose(f);
    
     return 0;
@@ -478,10 +476,9 @@ char *search(char *filtre){
                 
                 index = strtol(strtok(tmp, ";"), NULL, 10);
                 tmp3 = strtok(NULL, ";");
-
-                printf("%s %s  \n  %d %s--%s\n", file_vector, tmp2, i, tmp3, vector_tmp);
                 
                 if (ainb(vector_tmp, tmp3)) {
+
                     sprintf(tmp33, "%s;", tmp3);
                     strcat(tmp44, tmp33);
                 }
@@ -491,7 +488,6 @@ char *search(char *filtre){
             fclose(f);
            
             tmp2 = strsep(&r, ";");
-            printf("tmp2 = %s\n", tmp2);
         }
         
        
@@ -499,9 +495,93 @@ char *search(char *filtre){
 
         memset((void *)res, '\0', sizeof(char)*strlen(res));
         strcpy(res, tmp44);
-        printf("\ntmp44: %s\n", tmp44);
     }
-       return NULL;
+    
+    
+    r = strdup(res);
+    tmp2 = strsep(&r, ";");
+        
+    memset((void *)tmp44, '\0', sizeof(char)*strlen(tmp44));
+    memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
+    
+    while (tmp2 != NULL) {
+        
+        file_vector = find_file_name_vector(tmp2);
+        
+        f = fopen(file_vector, "r");
+        
+        if (f == NULL) {
+            break;
+        }
+        
+        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
+        
+        index = -1;
+        while (fgets(tmp, 1<<20, f) != NULL) {
+            tmp[strlen(tmp) - 1] = '\0';
+            
+            index = strtol(strtok(tmp, ";"), NULL, 10);
+            tmp3 = strtok(NULL, ";");
+            
+            if (ainb(filtre, tmp3)) {
+                sprintf(tmp33, "%s;", tmp3);
+                strcat(tmp44, tmp33);
+            }
+            
+        }
+        
+        fclose(f);
+        
+        tmp2 = strsep(&r, ";");
+    }
+    
+    
+    tmp44[strlen(tmp44) - 1] = '\0';
+    
+    memset((void *)res, '\0', sizeof(char)*strlen(res));
+    strcpy(res, tmp44);
+    
+    CC_SHA1_CTX c;
+    unsigned char md[20];
+    char hash[2*sizeof(md) + 1];
+    char *t = "filter/";
+    char *resultat = (char *)malloc(sizeof(char) * 1<<20);
+
+    tmp2 = strtok(res, ";");
+    
+    while (tmp2 != NULL) {
+        memset((void *)file_name, '\0', sizeof(char)*strlen(file_name));
+
+        CC_SHA1_Init(&c);
+        CC_SHA1_Update(&c, (const void *)tmp2, strlen(tmp2));
+        CC_SHA1_Final(md, &c);
+        
+        for (i = 0; i < sizeof(md); i++) {
+            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
+        }
+        
+        strcpy(file_name, DIR);
+        strcat(file_name, t);
+        strcat(file_name, hash);
+        file_name[strlen(file_name)] = '\0';
+        
+        f = fopen(file_name, "r");
+        
+        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
+
+        while (fgets(tmp, 1<<20, f) != NULL) {
+            tmp[strlen(tmp) - 1] = '\0';
+
+            sprintf(tmp3, "%s\n", tmp);
+            strcat(resultat, tmp3);
+        }
+        fclose(f);
+     
+        tmp2 = strtok(NULL, ";");
+    }
+    
+    resultat[strlen(resultat) - 1] = '\0';
+    return resultat;
 }
 
 int ainb(char *a, char *b){
@@ -526,14 +606,13 @@ int ainb(char *a, char *b){
 
 int main(int argc, char **argv){
     min_dimension = 1;
- //   generator_filter(argv[1]);
-    search("00000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000100000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000100000000000000000000000100000000000000001000000000000000000000000001000000000000000000000000000000000000000000000000000000000100000000000000000000000100000010000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+  //  generator_filter(argv[1]);
+    
+    char * resultat = search("00000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000100000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000100000000000000000000000100000000000000001000000000000000000000000001000000000000000000000000000000000000000000000000000000000100000000000000000000000100000010000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+    
+    printf("résultat requete:\n%s\n", resultat);
     return 0;
 }
-
-
-
-
 
 
 
