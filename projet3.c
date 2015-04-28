@@ -494,10 +494,6 @@ int search(char *filtre){
                         strcat(tmp44, tmp33);
                     }
                 }
-                printf("max_size2 = %lu %lu\n", strlen(tmp44), sizeof(tmp44));
-                printf("max_size2 = %lu %lu\n", strlen(tmp444), sizeof(tmp444));
-                printf("max_size2 = %lu %lu\n", strlen(tmp4444), sizeof(tmp4444));
-
             }
            
             fclose(f);
@@ -545,9 +541,6 @@ int search(char *filtre){
                             strcat(tmp44, tmp33);
                         }
                     }
-                    printf("max_size3 = %lu %lu\n", strlen(tmp44), sizeof(tmp44));
-                    printf("max_size3 = %lu %lu\n", strlen(tmp444), sizeof(tmp444));
-                    
                 }
                 
                 fclose(f);
@@ -597,9 +590,6 @@ int search(char *filtre){
                             strcat(tmp44, tmp33);
                         }
                     }
-                    printf("max_size3 = %lu %lu\n", strlen(tmp44), sizeof(tmp44));
-                    printf("max_size3 = %lu %lu\n", strlen(tmp444), sizeof(tmp444));
-                    
                 }
                 
                 fclose(f);
@@ -754,7 +744,6 @@ int search(char *filtre){
     unsigned char md[20];
     char hash[2*sizeof(md) + 1];
     char *t = "filter/";
-    char *resultat = (char *)malloc(sizeof(char) * 1<<20);
 
     tmp2 = strtok(res, ";");
     
@@ -780,10 +769,75 @@ int search(char *filtre){
 
         while (fgets(tmp, 1<<20, f) != NULL) {
             tmp[strlen(tmp) - 1] = '\0';
-/////////////////////////
+            
+            printf("%s\n", tmp);
         }
         fclose(f);
      
+        tmp2 = strtok(NULL, ";");
+    }
+    
+    tmp2 = strtok(res1, ";");
+    
+    while (tmp2 != NULL) {
+        memset((void *)file_name, '\0', sizeof(char)*strlen(file_name));
+        
+        CC_SHA1_Init(&c);
+        CC_SHA1_Update(&c, (const void *)tmp2, strlen(tmp2));
+        CC_SHA1_Final(md, &c);
+        
+        for (i = 0; i < sizeof(md); i++) {
+            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
+        }
+        
+        strcpy(file_name, DIR);
+        strcat(file_name, t);
+        strcat(file_name, hash);
+        file_name[strlen(file_name)] = '\0';
+        
+        f = fopen(file_name, "r");
+        
+        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
+        
+        while (fgets(tmp, 1<<20, f) != NULL) {
+            tmp[strlen(tmp) - 1] = '\0';
+            
+            printf("%s\n", tmp);
+        }
+        fclose(f);
+        
+        tmp2 = strtok(NULL, ";");
+    }
+    
+    tmp2 = strtok(res2, ";");
+    
+    while (tmp2 != NULL) {
+        memset((void *)file_name, '\0', sizeof(char)*strlen(file_name));
+        
+        CC_SHA1_Init(&c);
+        CC_SHA1_Update(&c, (const void *)tmp2, strlen(tmp2));
+        CC_SHA1_Final(md, &c);
+        
+        for (i = 0; i < sizeof(md); i++) {
+            snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
+        }
+        
+        strcpy(file_name, DIR);
+        strcat(file_name, t);
+        strcat(file_name, hash);
+        file_name[strlen(file_name)] = '\0';
+        
+        f = fopen(file_name, "r");
+        
+        memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
+        
+        while (fgets(tmp, 1<<20, f) != NULL) {
+            tmp[strlen(tmp) - 1] = '\0';
+            
+            printf("%s\n", tmp);
+        }
+        fclose(f);
+        
         tmp2 = strtok(NULL, ";");
     }
     
