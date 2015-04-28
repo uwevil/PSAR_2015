@@ -236,11 +236,9 @@ char *find_file_name_vector(char *vector){
         snprintf(hash+(2*i), 3, "%02x\n", (int)md[i]);
     }
     
+    memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
+
     switch (strlen(vector)) {
-        case 512:
-            sprintf(tmp, "%d/", 7);
-            break;
-            
         case 256:
             sprintf(tmp, "%d/", 6);
             break;
@@ -260,9 +258,13 @@ char *find_file_name_vector(char *vector){
         case 16:
             sprintf(tmp, "%d/", 2);
             break;
+         
+        case 8:
+            sprintf(tmp, "%d/", 1);
+            break;
             
         default:
-            sprintf(tmp, "%d/", 1);
+            sprintf(tmp, "%d/", 0);
             break;
     }
 
@@ -377,65 +379,6 @@ int put(char *filtre){
         fflush(f);
     }
     
-/*
-    while ((index >= MAX_STORE) && (min_dimension >= 3)) {
-        min_dimension--;
-        index = -1;
-        rewind(f);
-    
-        FILE *temp = fopen("./test/temp", "w+");
-        
-        if (temp == NULL) {
-            printf("PUT: create temp error\n");
-            exit(1);
-        }
-
-        while (fgets(tmp, 1<<20, f) != NULL) {
-            
-            tmp[strlen(tmp) - 1] = '\0';
-            i = strtol(strtok(tmp, ";"), NULL, 10);
-            tmp2 = strdup(strtok(NULL, ";"));
-            
-            vector_tmp = create_vector(tmp2, min_dimension);
-            index++;
-            
-            rewind(temp);
-            while (fgets(tmp3, 1<<20, temp) != NULL) {
-                tmp3[strlen(tmp3) - 1] = '\0';
-                j = strtol(strtok(tmp3, ";"), NULL, 10);
-                tmp4 = strdup(strtok(NULL, ";"));
-
-                if (strcasecmp(tmp4, vector_tmp) == 0) {
-                    break;
-                }
-            
-            }
-            if (strcasecmp(tmp4, vector_tmp) != 0) {
-                fprintf(temp, "%d;%s\n", index, vector_tmp);
-                fflush(temp);
-            }
-        
-        }
-    
-        rewind(temp);
-        fclose(f);
-        remove(file_name);
-    
-        f = fopen(file_name, "w");
-        if (f == NULL) {
-            printf("PUT: error 1 create %s\n", file_name);
-            exit(1);
-        }
-    
-    
-        while (fgets(tmp, 1<<20, temp) != NULL) {
-            fputs(tmp, f);
-        }
-    
-        fclose(temp);
-        remove("temp");
-    }*/
-    
     for (i = min_dimension; i <= MAX_DIMENSION; i++) {
         if (i == MAX_DIMENSION) {
             vector_tmp = create_vector(filtre, i);
@@ -469,16 +412,15 @@ char *search(char *filtre){
     }
   
     
-    char *vector_tmp = create_vector(filtre, min_dimension);
+    char vector_tmp[512];
+    strcpy(vector_tmp , create_vector(filtre, min_dimension));
+    
     char res[1<<20];
-    int bit[512];
     int i;
     
-    for (i = 0; i < 512; i++) {
-        bit[i] = 0;
-    }
-    
-    char tmp[1<<20], tmp2[1<<20], *tmp3, tmp4[1<<20];
+    char tmp[1<<20], *tmp2, *tmp3, *tmp4;
+    char tmp22[1<<20], tmp33[1<<20], tmp44[1<<20];
+
     char *file_vector;
     int index;
     i = 0;
@@ -491,35 +433,81 @@ char *search(char *filtre){
         index = strtol(strtok(tmp, ";"), NULL, 10);
         tmp2 = strtok(NULL, ";");
         
-        if (AinB(vector_tmp, tmp2)) {
-            sprintf(res, "%s;", tmp2);
+        if (ainb(vector_tmp, tmp2)) {
+            sprintf(tmp22, "%s;", tmp2);
+            strcat(res, tmp22);
         }
     } //while
     
+    fclose(f);
+    
     res[strlen(res) - 1] = '\0';
+    
     if (strlen(res) == 0) {
         printf("SEARCH: not found\n");
         return NULL;
     }
     
-    tmp3 = strtok(res, ";");
-    for (i = min_dimension; i <= MAX_DIMENSION; i++) {
-        file_vector = find_file_name_vector(tmp2);
-        v = fopen(file_vector, "r");
-        if (v == NULL) {
-            break;
-        }
-        while (fgets(tmp3, 1<<20, v) != NULL) {
+    char *r;
+    for (i = (min_dimension + 1); i <= MAX_DIMENSION; i++) {
+        
+        r = strdup(res);
+        tmp2 = strsep(&r, ";");
+        
+        memset((void *)vector_tmp, '\0', sizeof(char)*strlen(vector_tmp));
+        memset((void *)tmp44, '\0', sizeof(char)*strlen(tmp44));
+        memset((void *)tmp33, '\0', sizeof(char)*strlen(tmp33));
+
+        strcpy(vector_tmp , create_vector(filtre, i));
+        
+        while (tmp2 != NULL) {
             
+            file_vector = find_file_name_vector(tmp2);
+            
+            f = fopen(file_vector, "r");
+            
+            if (f == NULL) {
+                break;
+            }
+            
+            memset((void *)tmp, '\0', sizeof(char)*strlen(tmp));
+
+            index = -1;
+            while (fgets(tmp, 1<<20, f) != NULL) {
+                tmp[strlen(tmp) - 1] = '\0';
+                
+                index = strtol(strtok(tmp, ";"), NULL, 10);
+                tmp3 = strtok(NULL, ";");
+
+                printf("%s %s  \n  %d %s--%s\n", file_vector, tmp2, i, tmp3, vector_tmp);
+                
+                if (ainb(vector_tmp, tmp3)) {
+                    sprintf(tmp33, "%s;", tmp3);
+                    strcat(tmp44, tmp33);
+                }
+                
+            }
+           
+            fclose(f);
+           
+            tmp2 = strsep(&r, ";");
+            printf("tmp2 = %s\n", tmp2);
         }
+        
+       
+        tmp44[strlen(tmp44) - 1] = '\0';
+
+        memset((void *)res, '\0', sizeof(char)*strlen(res));
+        strcpy(res, tmp44);
+        printf("\ntmp44: %s\n", tmp44);
     }
-    
+       return NULL;
 }
 
-int AinB(char *a, char *b){
+int ainb(char *a, char *b){
     if (strlen(a) != strlen(b)) {
         printf("size of != size of b\n");
-        return -1;
+        return 0;
     }
     
     int i;
@@ -529,7 +517,6 @@ int AinB(char *a, char *b){
             if (*(b+i) == '1') {
                 continue;
             }else{
-                printf("A not in B\n");
                 return 0;
             }
         }
@@ -539,7 +526,8 @@ int AinB(char *a, char *b){
 
 int main(int argc, char **argv){
     min_dimension = 1;
-   // generator_filter(argv[1]);
+ //   generator_filter(argv[1]);
+    search("00000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000100000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000100000000000000000000000100000000000000001000000000000000000000000001000000000000000000000000000000000000000000000000000000000100000000000000000000000100000010000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
     return 0;
 }
 
