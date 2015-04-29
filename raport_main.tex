@@ -5,19 +5,62 @@
 \usepackage{lmodern}
 \usepackage{microtype}
 \usepackage{hyperref}
+\usepackage{tabulary}
+\usepackage{framed}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{bbm}
 
-\title{ \textbf{ {\Huge R}ercherche de filtres de Bloom similaires\\
-Application à la recherche par mots clés basée sur une DHT}}
 
-\author{Réalisé par NDOMBI TSHISUNGU Christian \& DOAN Cao Sang \\
-		Encadre: M. Messac Makpangou, Regal}
+%\usepackage{nopageno}
 
+\newcommand{\latin}[1]{\textit{#1}}
+
+\pagestyle{empty}
+
+\pagestyle{fancy}
+\fancyhead{}
+\renewcommand{\headrulewidth}{0.5pt}
+\fancyhead[R]{\textit{\nouppercase{\rightmark}}}
+\fancyfoot{}
+\renewcommand{\footrulewidth}{0.5pt}
+\fancyfoot[L]{\textit{\nouppercase{\leftmark}}}
+\fancyfoot[R]{\thepage}
+  
 \begin{document}
+	\begin{titlepage}
+		\vspace*{\stretch{2}}
+		\begin{center}
+			\large\bfseries\itshape Projet SAR\\
+		\end{center}
+		\noindent\rule{\linewidth}{3pt}
 
-\maketitle
+		\begin{center}
+			\Huge\bfseries\itshape RAPPORT\\
+		\end{center}
+		
+		\noindent\rule{\linewidth}{3pt}
+		\begin{center}
+			\bfseries
+			\large Recherche de filtres de Bloom similaires \\
+			\large Application à la recherche par mots clés basée sur une DHT
+		\end{center}
+		\vspace*{\stretch{2}}
+		\begin{center}
+			Réalisé par \textbf{NDOMBI TSHISUNGU} Christian \& \textbf{DOAN} Cao Sang \\
+			Encadre: M. \textbf{MAKPANGOU} Mesaac, Regal
+		\end{center}
+		\vspace*{\stretch{0.5}}
+		\begin{center}
+			26 Mars 2015
+		\end{center}
+	\end{titlepage}
+
 \tableofcontents
 
 \include{introduction}
+\include{projet}
 \include{filtredeBloom}
+\include{biblio}
 
 \end{document}
