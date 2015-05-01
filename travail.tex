@@ -37,7 +37,7 @@
 		\noindent\rule{\linewidth}{0.5pt}
 
 		\begin{tabbing}
-			$x \leftarrow \sum desc$\\
+			$x \leftarrow$ FIRST($\sum desc$)\\
 			\textit{init($B^{512}$)}\\
 			\textbf{while} \= $x \neq \emptyset$ \textbf{do}\\
 					\> $i \leftarrow SHA\_256(x)$\\
@@ -81,7 +81,40 @@
 	\end{framed}
 \end{flushleft}
 
+\section{SEARCH}
+\begin{algorithme}
+	Recherche d'un document à partir d'un filtre de Bloom
+\end{algorithme}
 
+\begin{flushleft}
+	\begin{framed}
+		\textbf{IN:} filtre de Bloom de taille 512 bits $B^{512}$\\
+		\textbf{FUNCTION:} \textit{search($B^{512}$)}\\
+		\textbf{OUT:} \textit{$\sum doc$}\\
+
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{tabbing}
+			$i \leftarrow$ MAX\_LEVEL\\
+			$vector_i \leftarrow$ CREATE\_VECTOR($B^{512}$, \textit{i})\\
+			$x \leftarrow$ FIRST(\textit{VA\_file})\\
+			$tmp \leftarrow$ CREATE\_FILE(\textit{i})\\
+			\textbf{while }\=$x \neq \emptyset $ \textbf{do}\\
+					\> \textbf{if}\= {then}\\
+						\>\> 
+					\> \textbf{end}\\
+					\> $x \leftarrow$ NEXT(\textit{VA\_file})\\
+			\textbf{end}\\
+			\textbf{if }\= $vector_i \notin$ \textit{VA\_file} \textbf{then}\\
+					\> \textbf{return }$\emptyset$\\
+			\textbf{end}	\\
+			\textbf{for }\=$i = MAX\_LEVEL\ ..\ 2$ \textbf{do}\\
+					\> \\
+			\textbf{end}	\\	
+			\textbf{return} $\sum doc$\\
+	    	\end{tabbing}		
+	\end{framed}
+\end{flushleft}
 
 
 
