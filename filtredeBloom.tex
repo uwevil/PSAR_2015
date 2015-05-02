@@ -1,5 +1,5 @@
 \chapter{Filtre de Bloom}
-	Un filtre de Bloom est une structure de données probabiliste compacte inventée par Burton Howard Bloom en 1970\footnote{Wikipédia}. L'avantage d'utilisation de filtre de Bloom est que cette technique nous permet de savoir avec certitude que l'élément n'est pas présenté dans l'ensemble d'élément, c'est-à-dire il ne faut pas y avoir de faux négatif mais il peut y avoir des faux positifs. On ne peut savoir qu'avec une certaine probabilité, l'élément peut être présent dans l'ensemble. Ce qui réduit d'une manière considérable les entrées lorsqu'on fait une recherche dans une masse de données. En plus, la taille de filtre est fixe et indépendante du nombre d'éléments contenus, par contre, plus déléments plus de faux positifs.
+	{\huge \itshape U}n filtre de Bloom est une structure de données probabiliste compacte inventée par Burton Howard Bloom en 1970\footnote{Wikipédia}. L'avantage d'utilisation de filtre de Bloom est que cette technique nous permet de savoir avec certitude que l'élément n'est pas présenté dans l'ensemble d'élément, c'est-à-dire il ne faut pas y avoir de faux négatif mais il peut y avoir des faux positifs. On ne peut savoir qu'avec une certaine probabilité, l'élément peut être présent dans l'ensemble. Ce qui réduit d'une manière considérable les entrées lorsqu'on fait une recherche dans une masse de données. En plus, la taille de filtre est fixe et indépendante du nombre d'éléments contenus, par contre, plus déléments plus de faux positifs.
 	
 	En réalité, le filtre de Bloom a un structure très simple, un tableau B de \textit{m} bits associé à $i$ fonctions de hachage $h_i$, $0 \leq i \leq m - 1$ permettant de mapper tout élément de l'ensemble à une des $m$ cases du tableau. Ces fonctions de hachage ont une répartition uniforme des éléments de l'ensemble sur le tableau, et évidemment, doivent avoir une répartition différente. Au départ, le filtre représente un ensemble vide, et toutes les cases sont à 0.
 	
@@ -76,7 +76,7 @@
 
 \begin{figure}[!htbp]
 	\centering
-	\includegraphics[width =12cm]{ismember.png}
+	\includegraphics[width=12cm]{ismember.eps}
 	\caption{isMember?}
 \end{figure}	
 

@@ -1,12 +1,12 @@
 \chapter{Projet}
 \section{Marché}
-		Il existe actuellement plusieurs moteurs de recherche par mots clés sur le marché. Il est toujours nécessaire d’améliorer les recherches en minimisant le temps de réponse et le coût de recherche, d’autant plus que les besoins de recherche deviennent très importants lorsqu’on exploite des bases de données de plus en plus grande et complexe. L’application que nous développerons doit répondre explicitement à ces exigences.
+		{\huge \itshape I}l existe actuellement plusieurs moteurs de recherche par mots clés sur le marché. Il est toujours nécessaire d’améliorer les recherches en minimisant le temps de réponse et le coût de recherche, d’autant plus que les besoins de recherche deviennent très importants lorsqu’on exploite des bases de données de plus en plus grande et complexe. L’application que nous développerons doit répondre explicitement à ces exigences.
 		
 	\section{Contexte et objectifs}
-		Comme l’application FreeCore\cite{freecore}, qui utilise le filtre de Bloom pour faciliter la recherche par mot clé, le but de notre projet est d'explorer d’autres solutions basées sur une recherche de filtre de Bloom similaires.  Chaque filtre  de  Bloom  sera vu  comme  un  point  dans  un  espace à n dimensions  plutôt  qu'une  concaténation de  n mots binaires. On détermine ensuite une relation de proximité et on exploite les algorithmes de recherche des filtres similaires pour réduire l'ensemble de filtres à examiner.
+		{\huge \itshape C}omme l’application FreeCore\cite{freecore}, qui utilise le filtre de Bloom pour faciliter la recherche par mot clé, le but de notre projet est d'explorer d’autres solutions basées sur une recherche de filtre de Bloom similaires.  Chaque filtre  de  Bloom  sera vu  comme  un  point  dans  un  espace à n dimensions  plutôt  qu'une  concaténation de  n mots binaires. On détermine ensuite une relation de proximité et on exploite les algorithmes de recherche des filtres similaires pour réduire l'ensemble de filtres à examiner.
 		
 	\section{Enoncé du besoin}
-		Comme FreeCore, l’application exploitera les propriétés des filtres de Bloom. Il  permettra d’une part, de stocker les publications dans un fichier $VA\_file$ (put). Et d’autre part, d’effectuer des recherches de contenus par mots clés (search).
+		{\huge \itshape C}omme FreeCore, l’application exploitera les propriétés des filtres de Bloom. Il  permettra d’une part, de stocker les publications dans un fichier $VA\_file$ (put). Et d’autre part, d’effectuer des recherches de contenus par mots clés (search).
 	\subsection{Stockage et indexation des publications}
 	L’application permet de rechercher des publications qui contiennent tous les mots clés de la requête de façon optimale en utilisant le filtre de Bloom. Elle doit :
 	\begin{itemize}

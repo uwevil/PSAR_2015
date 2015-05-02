@@ -2,5 +2,54 @@
 320 000 fichiers générés
 107 459 fichier contient docUrl
 
-4 description 49s
-138 description 0.1s
+1   1m32.7s == 92.7s 11534 docs  
+2   1m42.2s == 102.2s 1034 docs
+3   31.8s 109 docs
+4   45.0s varie entre 15-55s
+7   11.1s 28 docs
+9   10.4s 12 docs
+10  9.7s 
+11  0.7s 8.4s 9 resultats
+16  1.4s
+18  0.8s 4 resultats
+19  0.4s 9 docs
+21  0.1s 3 resultats
+23  0.9s 3 resultats
+24  0.1s 2 docs
+25  0.1s
+30  0.1s 3 docs
+36  0.0s 2 docs
+39  0.0s 1 docs
+70  O.Os
+71  0.0s
+130 0.0s
+138 0.1s
+
+1 malone’s 49.3s 4245 docs
+2 malone's,regional 49.5s 1409 docs
+3 malone's,regional,north 1m27.6s 828 docs
+4 malone's,regional,north,canada 1m26.5s 169 docs
+5 malone's,regional,north,canada,british 1m29.0s 54 docs
+6 malone's,regional,north,canada,british,bar 1m26.0s 28 docs
+7 malone's,regional,north,canada,british,bar,grill 1m27.8s 14 docs
+
+5 malone’s,malones,cornwall,www.malones.bc.ca,malone`s 17.5s 31 docs
+6 malone’s,malones,cornwall,www.malones.bc.ca,malone`s,vancouver 8.0s 23 docs
+
+37 world,italiano,regionale,europa,italia,toscana,provincia,di,firenze,località,turismo,hotel,français,régional,europe,italie,toscane,villes,villages,florence,voyages,tourisme,hébergement,hôtels,regional,italy,regions,tuscany,localities,travel,tourism,lodging,hotels,machiavelli,palace,www.hotelmachiavelli.it,accommodation 0.0s
+20 world,hotel,français,régional,europe,italie,villes,villages,florence,voyages,tourisme,hébergement,hôtels,regional,italy,regions,travel,tourism,hotels,palace 1.7s 3 docs
+14 italiano,europa,italia,toscana,provincia,di,firenze,località,turismo,toscane,tuscany,lodging,machiavelli,accommodation 0.4s 14 docs
+13 italiano,europa,italia,toscana,provincia,di,firenze,località,turismo,toscane,tuscany,lodging,machiavelli 0.2 4 docs
+
+16 shopping,gifts,baskets,friend,,home,business,shops,fruits,gift,shop,bouquet,basket,wedding,vacation,buy,health 7.0s 6 docs
+19 shopping,food,gifts,baskets,friend,,home,business,shops,fruits,gift,shop,bouquet,basket,celebration,advertising,wedding,vacation,buy,health 10.1s 6 docs
+26 shopping,food,gifts,baskets,cheese,fruit,a,friend,,home,business,shops,flowers,fruits,fun,gift,ideas,shop,bouquet,basket,celebration,advertising,presents,wedding,vacation,buy,health 0.9s 4 docs
+16 www.ediblearrangements.com,www.ediblearrangements.com.,home,yellowpages.com,ediblearrangements.com,ediblefruitarrangements,yummy,via.stylehive,tampa,设计,创意,group122,bit200f06,bit200w07,sculturafruttaeverdura,realestate 0.6s 5 docs
+88 shopping,food,gifts,baskets,cheese,fruit,wine,a,friend,edible,arrangements,edibile,www.ediblearrangements.com,www.ediblearrangements.com.,home,yellowpages.com,business,shops,ediblearrangements.com,arrangement,chocolate,cooking,flowers,fruits,fun,gift,giftideas,ideas,internet,shop,toronto,@review,giftyou,craft,franchise,bouquet,basket,wedding_decor,celebration,ediblefruitarrangements,yummy,via.stylehive,tampa,gifts:mom,vendor,funny,设计,创意,gift_idea,somethin_else,nice,group122,bit200f06,trends,advertising,chains,eventplanning,imported,cool,system:unfiled,bit200w07,fresh,sweet,unique,sculturafruttaeverdura,realestate,presents,wedding,greenville,goveg,pers_gifts,specialdaygifts,wow,jill,online-shopping,awesome,bawstuff,reference_wedding,food_drink,vacation,buy,dining,entertaining,groceries,health,trailwood,west_van,online_shopping 0.0s 2 docs
+
+ces résultats sont avec doublon?? NOn car chaque doc est unique
+le temps de réponse dépend le nombre de mots clés, la popularité de mots clés
+
+
+
+
