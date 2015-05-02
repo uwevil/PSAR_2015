@@ -15,7 +15,7 @@
 	
 	Est-ce que le niveau d'index est illimité? La réponse est non. Pour le filtre de Bloom que nous avons choisi 512 bits, nous avons maximum 6 niveaux, $B^{8}_6$. Du coup, la taille de filtre de Bloom au niveau le plus haut est de 8 bits. A ce niveau, on a au maximum 256 valeurs d'index possibles dans le fichier $VA\_file$, un nombre très petit par rapport au quantité de données. 
 	
-	La technique d'augmentation le niveau dynamique est très efficace si on a un nombre de données n'est pas important. Si on a 100 000 documents à ajouter, la création des fichiers nécessaires nous prend plusieurs heures pour les créer. Donc, si on connaît le nombre de données, on peut fixer combien de niveaux d'index nécessaire. Selon notre résultat sur un disque dur SSD, nous avons fixé 6 niveaux d'index, la création nous coûte seulement 10 minuites. Avec la curiosité, nous avons essayé de réaliser sur un disque dur 80Go utilisé l'interface SATA II, il prend plus de deux heures pour faire le même travail. Du coup, nous avons laissé à côté la technique de création dynamique, et fixé 6 niveaux d'index utilisés.	
+	La technique d'augmentation le niveau dynamique est très efficace si on a un nombre de données n'est pas important. Si on a 100 000 documents à ajouter, la création des fichiers nécessaires nous prend plusieurs heures pour les créer. Donc, si on connaît le nombre de données, on peut fixer combien de niveaux d'index nécessaire. Selon notre résultat sur un disque dur SSD, nous avons fixé 6 niveaux d'index, la création nous coûte seulement 15 minuites. Avec la curiosité, nous avons essayé de réaliser sur un disque dur 80Go utilisé l'interface SATA II, il prend plus de deux heures pour faire le même travail. Du coup, nous avons laissé à côté la technique de création dynamique, et fixé 6 niveaux d'index utilisés.	
 	
 \section{Recherche de données}
 	{\huge \itshape P}uisque l'on a fixé le nombre de niveau, on connaît la taille du filtre de Bloom contenu dans le fichier $VA\_file$, sinon on peut lire ce fichier pour trouver quel niveau où on est. D'abord, le système crée le filtre de Bloom de taille 512 bits $B^{512}_{req}$ pour la requête selon l'ensemble de mots clés fourni par l'utilisateur. A partir de ce filtre, le système calcul l'index de niveau le plus haut $B^{8}_{6_{req}}$ et lit le fichier $VA\_file$ pour trouver l'ensemble des index qui contiennent $B^{8}_{6_{req}}$. Une fois on a trouvé, le résultat est stocké dans un fichier $res_6$ qui correspond à ce niveau, ici c'est niveau 6. Ensuite, le système lit ce fichier de résultat pour trouver le nom des fichiers d'index à niveau 6 $B^{8}_{6}$, il accéde à ces fichiers et compare avec le filtre de la requête au niveau 5 $B^{16}_{5_{req}}$ avec les filtres trouvés. Car le fichier $VA\_file$ contient les index de niveau 6, chaque fichier qui correspond avec un index à niveau 6, contient les index de niveau 5, etc... Le résultat trouvé est stocké dans un fichier $res_5$. 
@@ -146,30 +146,47 @@
 \end{flushleft}
 
 \chapter{Résultat obtenu}
-\subsection{Données}
-	{\huge \itshape N}ous avons testé sur 107 459 documents, cette application a généré 320 000 fichiers nécessaires. 107 459 documents sont sous forme un lien URL. Au début, ces lien sont stockés dans un fichier de test. Nous avons testé le programme sur le disque dur SATA II et un SSD. La création des fichiers nécessaires nous coûte plus de deux heures sur un disque traditionnel au lieu de 15 minuites sur un SSD. Au final, nous avons choisi d'utiliser le SSD dans tous nos tests.
-	\newpage
-\subsection{Recherche aléatoire}
-	{\huge \itshape N}ous réalisons la requête avec les mots clés choisis aléatoirement, la quantité de mots clés augmente chaque fois nous relançons la requête. Nous avons constaté que, plus de mots clés, moins de temps d'attente la réponse.
+\section{Données}
+	{\huge \itshape N}ous avons testé sur 107 459 documents, cette application a généré 320 000 fichiers nécessaires. 107 459 documents sont sous forme un lien URL. Au début, ces lien sont stockés dans un fichier de test. Nous avons testé le programme sur le disque dur SATA II et un SSD. La création des fichiers nécessaires nous coûte plus de deux heures sur un disque dur traditionnel au lieu de 15 minuites sur un SSD. Du coup, nous avons choisi d'utiliser le SSD dans tous nos tests.
+	
+\newpage
+\section{Recherche aléatoire}
+	{\huge \itshape N}ous réalisons la requête avec les mots clés choisis aléatoirement, la quantité de mots clés augmente chaque fois nous relançons la requête. Nous constatons que, plus de mots clés, moins de temps d'attente la réponse. Dans la figure \ref{recherche aleatoire}, nous testons avec un à 20 mots clés.
 
-\begin{figure}[!htbp]	
+\begin{figure}[!htbp]
 	\psset{linecolor=blue}
 	\psset{xunit=0.5cm, yunit=0.1cm}
 	\begin{pspicture}(-3,-1)(110,110)
-		\psaxes[linewidth=1.5pt,linecolor=black,labels=none,ticks=none]{->}(0,0)(20.5,100)[$data$,-90][$temps(s)$,-180]
-		\psline(0,0)(1,89.9)(2,54.9)(3,51.5)(4,40.4)(5,16.4)(6,5.8)(7,2.1)(8,1.3)(9,0.3)(10,0.3)(11,0.3)(12,0.3)(13,0.3)(14,0.3)(15,0.3)(16,0.3)(17,0.3)(18,0.3)(19,0.3)(20,0.3)
+		\psaxes[linewidth=1.5pt,linecolor=black,labels=none,ticks=none]{->}(0,0)(20.5,100)[$mot$,-90][$temps_{(s)}$,-180]
+		\psline(1,89.9)(2,54.9)(3,51.5)(4,40.4)(5,16.4)(6,5.8)(7,2.1)(8,1.3)(9,0.3)(10,0.3)(11,0.3)(12,0.3)(13,0.3)(14,0.3)(15,0.3)(16,0.3)(17,0.3)(18,0.3)(19,0.3)(20,0.3)
 		\uput*[45](1,89.9){(1,89.9)}
 		\uput*[45](2,54.9){(2,54.9)}
 		\uput*[45](9,0.3){(9,0.3)}
 	\end{pspicture}
 	\caption{Recherche aléatoire}
+	\label{recherche aleatoire}	
 \end{figure}	
 
-\subsection{Recherche sélective}
-	{\huge \itshape D}ans ce test, nous essayons
-\subsubsection{Recherche par les mots clés populaires}
-\subsubsection{Recherche par les mots clés caractéristiques}
+\newpage
+\section{Recherche sélective}
+	{\huge \itshape P}endant les tests, nous voyons que avec la même quantité de mots clés dans la même description d'un document quelconque, le temps nécessaire pour avoir la réponse varie. Nous essayons plusieurs test avec la quantité de mots clés fixe, nous changons seulement les mots clés qui appartiennent dans la même description. Le résultat est intéressant. 
 
+	Dans le premier test, nous choissons l'ensemble des mots clés qui appartiennent à plusieurs descriptions, ces mots clés sont appelés "populaire". Le deuxième test, nous prennons que les mots clés spécifiques qui sont caractéristiques pour chaque document dans la description d'un document quelconque. La description d'un document dans ces deux tests reste identique, ce qui change est les mots clés utilisés. Nous commençons par 1 mot et chaque fois nous relançons la requête, nous augmentons le nombre de mots clés. Dans le premier test, le nombre de mots clés augmenté ne signifie que le temps va être réduit.Dans le graphe, nous montrons que si on ajoute un mot "très populaire", ce mot nous coûte plus de temps. Dans le deuxième test, si on ajoute un mot "populaire", ce mot casse l'advantage de la recherche sélective. Donc, pour mieux rechercher un document, il faut que nous cherchions plusieurs mots clés qui caractérisent le document. Dans la figure \ref{recherche selective}, nous testons sur les requête de un à sept mots clés. 
+	
+	\begin{figure}[!htbp]
+	\psset{linecolor=blue}
+	\psset{xunit=1cm, yunit=0.1cm}
+	\begin{pspicture}(-3,-1)(110,110)
+		\psaxes[linewidth=1.5pt,linecolor=black,labels=none,ticks=none]{->}(0,0)(8,100)[$mot$,-90][$temps_{(s)}$,-180]
+		\psline[linecolor=red](1,84.2)(2,89.1)(3,42.7)(4,64.4)(5,55.7)(6,62.2)(7,71.3)
+		\psline[linecolor=blue](1,84.2)(2,40.1)(3,37.4)(4,20.4)(5,17.7)(6,16.8)(7,0.8)
+		%\uput*[45](1,89.9){(1,89.9)}
+		%\uput*[45](2,54.9){(2,54.9)}
+		%\uput*[45](9,0.3){(9,0.3)}
+	\end{pspicture}
+	\caption{Recherche sélective}
+	\label{recherche selective}	
+\end{figure}	
 
 
 

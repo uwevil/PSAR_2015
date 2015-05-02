@@ -25,16 +25,20 @@
 130 0.0s
 138 0.1s
 
-1 malone’s 49.3s 4245 docs
-2 malone's,regional 49.5s 1409 docs
-3 malone's,regional,north 1m27.6s 828 docs
-4 malone's,regional,north,canada 1m26.5s 169 docs
-5 malone's,regional,north,canada,british 1m29.0s 54 docs
-6 malone's,regional,north,canada,british,bar 1m26.0s 28 docs
-7 malone's,regional,north,canada,british,bar,grill 1m27.8s 14 docs
+1 malone’s 1m24.2s 4245 docs
+2 malone's,regional 1m29.1 1409 docs
+3 malone's,regional,north 42.7s 828 docs
+4 malone's,regional,north,canada 1m4.4s 169 docs
+5 malone's,regional,north,canada,british 55.7s 54 docs
+6 malone's,regional,north,canada,british,bar 1m2.2s 28 docs
+7 malone's,regional,north,canada,british,bar,grill 1m11.3s 14 docs
 
-5 malone’s,malones,cornwall,www.malones.bc.ca,malone`s 17.5s 31 docs
-6 malone’s,malones,cornwall,www.malones.bc.ca,malone`s,vancouver 8.0s 23 docs
+2 malones,cornwall 40.1s 604 docs
+3 malones,cornwall,www.malones.bc.ca 37.4s 173 docs
+4 malone’s,malones,cornwall,www.malones.bc.ca 20.4s 64 docs
+5 malone’s,malones,cornwall,www.malones.bc.ca,malone`s 17.7s 31 docs
+6 malone’s,malones,cornwall,www.malones.bc.ca,malone`s,vancouver 16.8 23 docs
+7 malone’s,malones,cornwall,www.malones.bc.ca,malone`s,vancouver,malone`s 0.8s 23 docs
 
 37 world,italiano,regionale,europa,italia,toscana,provincia,di,firenze,località,turismo,hotel,français,régional,europe,italie,toscane,villes,villages,florence,voyages,tourisme,hébergement,hôtels,regional,italy,regions,tuscany,localities,travel,tourism,lodging,hotels,machiavelli,palace,www.hotelmachiavelli.it,accommodation 0.0s
 20 world,hotel,français,régional,europe,italie,villes,villages,florence,voyages,tourisme,hébergement,hôtels,regional,italy,regions,travel,tourism,hotels,palace 1.7s 3 docs
