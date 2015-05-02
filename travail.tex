@@ -151,41 +151,38 @@
 	
 \newpage
 \section{Recherche aléatoire}
-	{\huge \itshape N}ous réalisons la requête avec les mots clés choisis aléatoirement, la quantité de mots clés augmente chaque fois nous relançons la requête. Nous constatons que, plus de mots clés, moins de temps d'attente la réponse. Dans la figure \ref{recherche aleatoire}, nous testons avec un à 20 mots clés.
+	{\huge \itshape N}ous réalisons la requête avec les mots clés choisis aléatoirement, la quantité de mots clés augmente chaque fois nous relançons la requête. Nous constatons que, plus de mots clés, moins de temps d'attente la réponse. Dans la figure \ref{recherche/aleatoire}, nous testons avec un à 20 mots clés.
 
 \begin{figure}[!htbp]
 	\psset{linecolor=blue}
 	\psset{xunit=0.5cm, yunit=0.1cm}
 	\begin{pspicture}(-3,-1)(110,110)
-		\psaxes[linewidth=1.5pt,linecolor=black,labels=none,ticks=none]{->}(0,0)(20.5,100)[$mot$,-90][$temps_{(s)}$,-180]
-		\psline(1,89.9)(2,54.9)(3,51.5)(4,40.4)(5,16.4)(6,5.8)(7,2.1)(8,1.3)(9,0.3)(10,0.3)(11,0.3)(12,0.3)(13,0.3)(14,0.3)(15,0.3)(16,0.3)(17,0.3)(18,0.3)(19,0.3)(20,0.3)
-		\uput*[45](1,89.9){(1,89.9)}
-		\uput*[45](2,54.9){(2,54.9)}
-		\uput*[45](9,0.3){(9,0.3)}
+		\psaxes[linewidth=1pt,linecolor=black,labels=none,ticks=none]{->}(0,0)(20.5,100)[$mot$,-90][$temps_{(s)}$,-180]
+		\psline[linewidth=1.5pt](1,89.9)(2,54.9)(3,51.5)(4,40.4)(5,16.4)(6,5.8)(7,2.1)(8,1.3)(9,0.3)(10,0.3)(11,0.3)(12,0.3)(13,0.3)(14,0.3)(15,0.3)(16,0.3)(17,0.3)(18,0.3)(19,0.3)(20,0.3)
 	\end{pspicture}
 	\caption{Recherche aléatoire}
-	\label{recherche aleatoire}	
+	\label{recherche/aleatoire}	
 \end{figure}	
 
 \newpage
 \section{Recherche sélective}
 	{\huge \itshape P}endant les tests, nous voyons que avec la même quantité de mots clés dans la même description d'un document quelconque, le temps nécessaire pour avoir la réponse varie. Nous essayons plusieurs test avec la quantité de mots clés fixe, nous changons seulement les mots clés qui appartiennent dans la même description. Le résultat est intéressant. 
 
-	Dans le premier test, nous choissons l'ensemble des mots clés qui appartiennent à plusieurs descriptions, ces mots clés sont appelés "populaire". Le deuxième test, nous prennons que les mots clés spécifiques qui sont caractéristiques pour chaque document dans la description d'un document quelconque. La description d'un document dans ces deux tests reste identique, ce qui change est les mots clés utilisés. Nous commençons par 1 mot et chaque fois nous relançons la requête, nous augmentons le nombre de mots clés. Dans le premier test, le nombre de mots clés augmenté ne signifie que le temps va être réduit.Dans le graphe, nous montrons que si on ajoute un mot "très populaire", ce mot nous coûte plus de temps. Dans le deuxième test, si on ajoute un mot "populaire", ce mot casse l'advantage de la recherche sélective. Donc, pour mieux rechercher un document, il faut que nous cherchions plusieurs mots clés qui caractérisent le document. Dans la figure \ref{recherche selective}, nous testons sur les requête de un à sept mots clés. 
+	Dans le premier test, nous choissons l'ensemble des mots clés qui appartiennent à plusieurs descriptions, ces mots clés sont appelés "populaire". Le deuxième test, nous prennons que les mots clés spécifiques qui sont caractéristiques pour chaque document dans la description d'un document quelconque. La description d'un document dans ces deux tests reste identique, ce qui change est les mots clés utilisés. Nous commençons par 1 mot et chaque fois nous relançons la requête, nous augmentons le nombre de mots clés. Dans le premier test, le nombre de mots clés augmenté ne signifie que le temps va être réduit.Dans le graphe, nous montrons que si on ajoute un mot "très populaire", ce mot nous coûte plus de temps. Dans le deuxième test, si on ajoute un mot "populaire", ce mot casse l'advantage de la recherche sélective. Donc, pour mieux rechercher un document, il faut que nous cherchions plusieurs mots clés qui caractérisent le document. Dans la figure \ref{recherche/selective}, nous testons sur les requête d'un à sept mots clés. 
 	
 	\begin{figure}[!htbp]
 	\psset{linecolor=blue}
 	\psset{xunit=1cm, yunit=0.1cm}
 	\begin{pspicture}(-3,-1)(110,110)
-		\psaxes[linewidth=1.5pt,linecolor=black,labels=none,ticks=none]{->}(0,0)(8,100)[$mot$,-90][$temps_{(s)}$,-180]
-		\psline[linecolor=red](1,84.2)(2,89.1)(3,42.7)(4,64.4)(5,55.7)(6,62.2)(7,71.3)
-		\psline[linecolor=blue](1,84.2)(2,40.1)(3,37.4)(4,20.4)(5,17.7)(6,16.8)(7,0.8)
-		%\uput*[45](1,89.9){(1,89.9)}
-		%\uput*[45](2,54.9){(2,54.9)}
+		\psaxes[linewidth=1pt,linecolor=black,labels=none,ticks=none]{->}(0,0)(8,100)[$mot$,-90][$temps_{(s)}$,-180]
+		\psline[linecolor=red,linewidth=1.5pt](1,84.2)(2,89.1)(3,42.7)(4,64.4)(5,55.7)(6,62.2)(7,71.3)
+		\psline[linecolor=blue,linewidth=1.5pt](1,84.2)(2,40.1)(3,37.4)(4,20.4)(5,17.7)(6,16.8)(7,0.8)
+		\psline[linecolor=red,linewidth=1.5pt](3,100)(4,100) \uput*[0](4.3,100){\small{recherche avec les mots clés populaires}}
+		\psline[linecolor=blue,linewidth=1.5pt](3,96)(4,96) \uput*[0](4.3,96){\small{recherche avec les mots clés caractéristiques}}
 		%\uput*[45](9,0.3){(9,0.3)}
 	\end{pspicture}
 	\caption{Recherche sélective}
-	\label{recherche selective}	
+	\label{recherche/selective}	
 \end{figure}	
 
 
