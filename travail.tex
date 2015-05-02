@@ -49,6 +49,7 @@
 	\end{framed}
 \end{flushleft}
 
+\newpage
 \section{PUT}
 \begin{algorithme}
 	Ajout d'un filtre dans le système
@@ -90,6 +91,7 @@
 	\end{framed}
 \end{flushleft}
 
+\newpage
 \section{SEARCH}
 \begin{algorithme}
 	Recherche d'un document à partir d'un filtre de Bloom
@@ -138,12 +140,15 @@
 					\> \textbf{end}\\
 					\> $x \leftarrow$ NEXT(FILE(\textit{1}))\\
 			\textbf{end}\\
-			\textbf{return} $\sum doc$\\
+			\textbf{return} $\sum doc$
 	    	\end{tabbing}		
 	\end{framed}
 \end{flushleft}
 
 \chapter{Résultat obtenu}
+\subsection{Données}
+	{\huge \itshape N}ous avons testé sur 107 459 documents, cette application a généré 320 000 fichiers nécessaires. 107 459 documents sont sous forme un lien URL. Au début, ces lien sont stockés dans un fichier de test. Nous avons testé le programme sur le disque dur SATA II et un SSD. La création des fichiers nécessaires nous coûte plus de deux heures sur un disque traditionnel au lieu de 15 minuites sur un SSD. Au final, nous avons choisi d'utiliser le SSD dans tous nos tests.
+	\newpage
 \subsection{Recherche aléatoire}
 	{\huge \itshape N}ous réalisons la requête avec les mots clés choisis aléatoirement, la quantité de mots clés augmente chaque fois nous relançons la requête. Nous avons constaté que, plus de mots clés, moins de temps d'attente la réponse.
 
@@ -157,8 +162,9 @@
 		\uput*[45](2,54.9){(2,54.9)}
 		\uput*[45](9,0.3){(9,0.3)}
 	\end{pspicture}
-	\caption{La proportion entre le temps et la quantité de mots clés}
+	\caption{Recherche aléatoire}
 \end{figure}	
+
 \subsection{Recherche sélective}
 	{\huge \itshape D}ans ce test, nous essayons
 \subsubsection{Recherche par les mots clés populaires}
