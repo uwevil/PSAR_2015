@@ -54,7 +54,7 @@
 		\noindent\rule{\linewidth}{0.5pt}
 
 		\begin{tabbing}
-			\textbf{for} \= $i = 0 ... k - 1$ \textbf{do}\\
+			\textbf{for} \= $i = 0\ ...\ k - 1$ \textbf{do}\\
 					\> $j \leftarrow h_i(x)$\\
 					\> \textbf{if} \= $B_j == 0$ \textbf{then}\\
 					\> \> $B_j \leftarrow 1$\\
@@ -145,6 +145,7 @@
 					\> $j \leftarrow i\ mod\ 512$\\
 					\> $B^{512}[j]\leftarrow 1$\\
 					\> $x \leftarrow$ NEXT($\sum desc$)\\
+			\textbf{end}\\
 			\textbf{return} $B^{512}$\\
 	    	\end{tabbing}		
 	\end{framed}
@@ -191,6 +192,7 @@
 					\> \textbf{else}\\
 					\>	\> $vector_i \leftarrow$ CREATE\_VECTOR($B^{512}$, \textit{i})\\
 					\>	\> CREATE\_FILE($vector_i$, CREATE\_VECTOR($B^{512}$, \textit{i - 1}))\\
+					\> \textbf{end}\\
 			\textbf{end}	\\	
 			\textbf{return} $\emptyset$\\
 		\end{tabbing}
@@ -202,26 +204,26 @@
 		\frametitle{Algorithme des fonctions}
 		\framesubtitle{SEARCH}
 		\begin{framed}
-			\textbf{IN:} filtre de Bloom de taille 512 bits $B^{512}$\\
-			\textbf{FUNCTION:} \textit{search($B^{512}$)}\\
-			\textbf{OUT:} \textit{$\sum doc$}\\
+		\textbf{IN:} filtre de Bloom de taille 512 bits $B^{512}_{req}$\\
+		\textbf{FUNCTION:} \textit{search($B^{512}_{req}$)}\\
+		\textbf{OUT:} \textit{$\sum doc$}\\
 
-			\noindent\rule{\linewidth}{0.5pt}
+		\noindent\rule{\linewidth}{0.5pt}
 
-			\begin{tabbing}
-				$i \leftarrow$ MAX\_LEVEL\\
-				$vector_i \leftarrow$ CREATE\_VECTOR($B^{512}$, \textit{i})\\
-				$x \leftarrow$ FIRST(\textit{VA\_file})\\
-				$tmp \leftarrow$ CREATE\_FILE(\textit{i})\\
+		\begin{tabbing}
+			$i \leftarrow$ MAX\_LEVEL\\
+			$vector_i \leftarrow$ CREATE\_VECTOR($B^{512}_{req}$, \textit{i})\\
+			$tmp \leftarrow$ CREATE\_FILE(\textit{i})\\
+			$x \leftarrow$ FIRST(\textit{VA\_file})\\
 			
-				\textbf{while }\=$x \neq \emptyset $ \textbf{do}\\
+			\textbf{while }\=$x \neq \emptyset $ \textbf{do}\\
 					\> \textbf{if }\=$vector_i \subseteq x$ {then}\\
-					\>\> tmp $\leftarrow$ ADD(\textit{x})\\
+						\>\> tmp $\leftarrow$ ADD(\textit{x})\\
 					\> \textbf{end}\\
 					\> $x \leftarrow$ NEXT(\textit{VA\_file})\\
-				\textbf{end}\\
-	    		\end{tabbing}		
-		\end{framed}
+			\textbf{end}
+	    	\end{tabbing}		
+	\end{framed}
 	\end{frame}
 	
 	\begin{frame}[shrink]
@@ -230,16 +232,20 @@
 		\begin{framed}
 			\begin{tabbing}
 				\textbf{for }\=$i = MAX\_LEVEL - 1\ ...\ 1$ \textbf{do}\\
-					\> $vector_i \leftarrow$ CREATE\_VECTOR($B^{512}$, \textit{i})\\
+					\> $vector_i \leftarrow$ CREATE\_VECTOR($B^{512}_{req}$, \textit{i})\\
 					\> $x \leftarrow$ FIRST(FILE(\textit{i + 1}))\\
 					\> $tmp \leftarrow$ CREATE\_FILE(\textit{i})\\
 					\> \textbf{while }\=$x \neq \emptyset$\textbf{ do}\\
-					\> \> \textbf{if }\= $vector_i \subseteq x$\textbf{ then}\\
-					\> \> \> tmp $\leftarrow$ ADD(\textit{x})\\
+					\> \> $y \leftarrow$ FIRST(FILE(\textit{x}))\\
+					\> \> \textbf{while }\= $y \neq \emptyset$ \textbf{ do}\\
+					\> \> \> \textbf{if }\= $vector_i \subseteq y$\textbf{ then}\\
+					\> \> \> \> tmp $\leftarrow$ ADD(\textit{y})\\
+					\> \> \> \textbf{end}\\
+					\> \> \> $y \leftarrow$ NEXT(FILE(\textit{x}))\\
 					\> \> \textbf{end}\\
 					\> \> $x \leftarrow$ NEXT(FILE(\textit{i + 1}))\\
 					\> \textbf{end}\\
-				\textbf{end}	\\
+			\textbf{end}	
 			\end{tabbing}
 		\end{framed}
 	\end{frame}
@@ -250,17 +256,17 @@
 		\begin{framed}
 			\begin{tabbing}
 				$x \leftarrow$ FIRST(FILE(\textit{1}))\\
-				\textbf{while }\=$x \neq \emptyset$\textbf{ do}\\
+			\textbf{while }\=$x \neq \emptyset$\textbf{ do}\\
 					\> $y \leftarrow $ FIRST(FILE(\textit{x}))\\
 					\> \textbf{while }\= $y \neq \emptyset$\textbf{ do}\\
-					\> \> \textbf{if }\= $B^{512} \subseteq y$\textbf{ then}\\
-					\> \> \> $\sum doc \leftarrow$ FIRST(FILE(\textit{y}))\\
+					\> \> \textbf{if }\= $B^{512}_{req} \subseteq y$\textbf{ then}\\
+					\> \> \> $\sum doc \leftarrow$ ADD(FIRST(FILE(\textit{y})))\\
 					\> \> \textbf{end}\\
 					\> \> $y \leftarrow$ NEXT(FILE(\textit{x}))\\
 					\> \textbf{end}\\
 					\> $x \leftarrow$ NEXT(FILE(\textit{1}))\\
-				\textbf{end}\\
-				\textbf{return} $\sum doc$
+			\textbf{end}\\
+			\textbf{return} $\sum doc$
 			\end{tabbing}
 		\end{framed}
 	\end{frame}
