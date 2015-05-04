@@ -1,26 +1,34 @@
 \chapter{Réalisation du travail}
 \section{Notre solution}
-	{\huge \itshape N}ous avons choisi le filtre de Bloom de taille fixe de 512 bits. A partir des descriptions en entrée, ce programme transforme chaque mot clé en 1 bit avec la position précise dans notre filtre. Nous avons utilisé une seul fonction de hachage comme SHA 256 bits, cette fonction encode le mot clé en une chaine hexadécimale de 256 bits. Avec un simple calcul, le filtre est bien rempli. Nous avons choisi seulement une fonction de hachage car si on utilise plus de 2 fonctions, avec un seul mot, elle génère 2 bits différents, donc, si on a 200 mots clés, ce filtre devient être tout rempli par 1. Ce problème nous rend l'imposibité de réduire l'ensemble des données à recherche. Et pourquoi doit-on ne pas augmenter la taille de filtre? Mais quelle taille suffit-il pour 200 descriptions si on a 3 fonctions de hachage? Après plusieurs tests et discussions ensemble, nous avons pris une seule fonction de hachage très forte pour avoir moins de chance qu'il y a 2 mots clés différents qui ont la même valeur de hachage. En réalité, sur l'ensemble 107 459 documents, il existe au plus un document pour chaque filtre de Bloom.
+	{\huge \itshape N}ous avons choisi un filtre de Bloom de taille fixe de 512 bits, initialement rempli des 0 à chaque position. Pour générer un filtre de Bloom à partir de la description en entrée, le programme transforme chaque mot clé en 1 bit avec la position précise dans notre filtre. Nous avons utilisé une seule fonction de hachage basée sur SHA 256 bits, cette fonction encode un mot clé en une chaine hexadécimale de 256 bits. Avec un simple calcul, le filtre est bien rempli. Nous avons choisi seulement une fonction de hachage car si on en utilise plus d'une fonction, avec seulement un mot, on met sur plus d'une position le bit à 1, ce qui fait que, si on a par exemple 200 mots clés, comme c'est le cas des plusieurs entrées de notre fichier test, le filtre généré est rempli de 1. Ce problème rend imposible la réduction de l'ensemble des données de recherche. Et pourquoi doit-on ne pas augmenter la taille de filtre? Mais quelle taille suffit-il pour 200 descriptions si on a 3 fonctions de hachage? Après plusieurs tests et discussions ensemble, nous avons pris une seule fonction de hachage forte pour avoir moins de chance de collision. 
 	
-	Dans le cadre de notre projet, un document est une adresse URL décrit par l'ensemble de mots clés, ces mots clés sont écrits en codage UTF-8, sont basés sur plusieurs langues et contiennent les caractères spéciales. Donc, pour chaque filtre de Bloom, nous avons crée le fichier qui contient seulement cette adresse URL. En utilisant encore une fois la fonction de hachage SHA 256 bits, elle nous rend le nom unique pour chaque document et les stocke sur le disque.
+	En réalité, sur l'ensemble 107 459 documents, il existe au plus un document pour chaque filtre de Bloom, même s'il y a plusieurs documents qui ont plus de 200 mots dans leurs descriptions.
 	
-	Dans le cas le plus simple, pour ajouter un nouveau document, nous appliquons cette fonction de hachage pour chaque mot clé. En appliquant encore une fois cette fonction sur le filtre de Bloom généré dans le premier temps, nous avons le fichier qui contient ce document qui correspond avec ses mots clés. Ensuite, la recherche de document, facilement, on ré-applique cette fonction de hachage sur l'ensemble de mots clés pour trouver le filtre, à partir de ce filtre, on peut trouver le nom du fichier qui contient ce document. Mais, cette solution marche si et seulement si on a exactement tous les mots clés dans la description d'un document, sinon cela ne marche jamais. Avec le filtre de Bloom, on peut savoir si ces mots clés existent dans l'ensemble des mots clés d'un document. Donc, pour chercher les documents qui contiennent ces mots clés, il faut regarder tous les filtres qui contiennent le filtre de la requête. Mais le parcours séquentiel est très lent sur le grand nombre de documents. 
+	Dans notre fichier test(benchmark), un document est une adresse URL décrite par l'ensemble de mots clés, ces mots clés sont écrits en codage UTF-8, en plusieurs langues et contiennent les caractères spéciales. Donc, pour chaque filtre de Bloom, nous avons créé le fichier qui contient seulement cette adresse URL. En utilisant encore une fois la fonction de hachage SHA 256 bits, elle nous rend le nom unique pour chaque document et les stocke sur le disque. Dans le cas le plus simple, pour ajouter un nouveau document, nous appliquons cette fonction de hachage pour chaque mot clé. 
 	
-\section{Index}
-	{\huge \itshape N}ous avons utilisé l'index pour indexer les filtres. Nous avons divisé chaque filtre de 512 bits en 64 morceaux de 8 bits. Pour chaque morceau, nous avons pris 4 bits, donc, à la fin, nous avons un nouveau filtre de taille 256 bits, la taille de ce nouveau filtre est égale à la moitié de l'ancien filtre. On applique cette façon pour tous les filtres existants, si deux filtres de taille 512 bits qui génèrent le même filtre de taille 256 bits, ces deux filtres ont même index. Pour chaque index, on crée un fichier qui correspond avec cet index (\-nous utilisons la fonction SHA 256 aussi pour générer le nom de ce fichier), contient les filtres de taille 512 bits qui ont cet index. Après la création des index, on trouve le nombre des fichiers index sont beaucoup moins que celui des fichiers de document. On a $2^{256}$ valeurs possibles pour les index au lieu de $2^{512}$ valeurs différents avec le filtre de 512 bits.
+	En appliquant encore une fois cette fonction sur le filtre de Bloom généré dans le premier temps, nous avons le fichier qui contient ce document qui correspond à ses mots clés. Ensuite, la recherche de document, facilement, on ré-applique cette fonction de hachage sur l'ensemble de mots clés pour trouver le filtre, à partir de ce filtre, on peut trouver le nom du fichier qui contient ce document. 
 	
-	$2^{256}$ est un nombre très grand, mais heureusement, un très grand nombre d'index ne est pas distribué. Pour éviter la recherche inutile sur les index inexistants, nous avons utilisé un tableau qui contient tous les index occupés. Ce tableau se situe dans le fichier $VA\_file$. La recherche devient plus facile et plus rapide car on calcule le filtre de taille 256 bits à partir de celui de taille 512 bits, ensuite, on cherche dans le fichier $VA\_file$ les index qui contient l'index de la requête, grâce à l'ensemble des index trouvés, on peut trouver les fichiers qui correspondent avec ces index pour trouver les filtres de taille 512 bits qui contiennent notre filtre de 512 bits. Si oui, on trouve l'ensemble des documents qui contient la requête. On note le filtre de Bloom de taille $k$ $B^k$, le filtre de la requête de taille $k$ $B^{k}_{req}$.
+	Mais, cette solution marche si et seulement si on a exactement tous les mots clés dans la description d'un document, sinon cela ne marche jamais. Avec le filtre de Bloom, on peut savoir si ces mots clés existent dans l'ensemble des mots clés d'un document. Alors, pour chercher les documents qui contiennent ces mots clés, il faut regarder tous les filtres qui contiennent le filtre de la requête. Mais le parcours séquentiel est très lent sur le grand nombre de documents. 
 	
-	Le problème est que le fichier $VA\_file$ sera explosé s'il y a des milliers d'index. Dans ce cas, pour résoudre le problème et pour ne pas faire agrandir le nombre de fichier à gérer, nous utilisons un nombre limite d'index pour chaque niveau d'index. Ce nombre est fixé à 1024 index. Une fois, le nombre d'index stocké dans le $VA\_file$ dépasse ce seuil, l'application crée un nouveau niveau d'index. Ce nouveau d'index est basé sur l'index plus bas. Par exemple, un filtre de Bloom de taille 256 bits $B^{256}_1$ est l'index d'un filtre de Bloom de taille 512 bits $B^{512}_0$. Donc, pour chaque niveau $i$, le filtre créé doit satisfaire la formule suivant: $B^{\frac{512}{2^i}}_i$. Le système regarde le fichier $VA\_file$ pour trouver les index existants et les transforme en nouveau niveau d'index. Chaque nouveau d'index correspond avec un fichier qui contient les index de niveau plus bas qui ont le même nouveau d'index. Le système va refaire chaque fois que le seuil est dépassé.
+\section{Indexation et stockage de données}
+	{\huge \itshape P}our créer un index à partir d'un filtre, nous avons divisé chaque filtre de 512 bits en 64 morceaux de 8 bits. Pour chaque morceau, nous avons pris 4 bits de poids fort, donc, à la fin, nous avons un nouveau filtre de taille 256 bits, la taille de ce nouveau filtre est égale à la moitié de l'ancien filtre. On applique cette façon pour tous les filtres existants, si deux filtres de taille 512 bits qui génèrent le même filtre de taille 256 bits, ces deux filtres ont même index. Pour chaque index, on crée un fichier qui correspond avec cet index (\-nous utilisons la fonction SHA 256 aussi pour générer le nom de ce fichier), contient les filtres de taille 512 bits qui ont cet index. Après la création des index, on trouve le nombre des fichiers index sont beaucoup moins que celui des fichiers de document. On a $2^{256}$ valeurs possibles pour les index au lieu de $2^{512}$ valeurs différents avec le filtre de 512 bits. $2^{256}$ est un nombre très grand, mais heureusement un très grand nombre d'index non distribué.
+	
+	Pour éviter la recherche inutile sur les index inexistants, nous avons utilisé un tableau qui contient tous les index occupés. Ce tableau se situe dans le fichier $VA\_file$. La recherche devient plus facile et plus rapide car on calcule le filtre de taille 256 bits à partir de celui de taille 512 bits, ensuite, on cherche dans le fichier $VA\_file$ les index qui contient l'index de la requête, grâce à l'ensemble des index trouvés, on peut trouver les fichiers qui correspondent avec ces index pour trouver les filtres de taille 512 bits qui contiennent notre filtre de 512 bits. Si oui, on trouve l'ensemble des documents qui contient la requête. On note le filtre de Bloom de taille $k$ $B^k$, le filtre de la requête de taille $k$ $B^{k}_{req}$.
+	
+	Un \textit{VA\_file} peut finir par exploser s'il y a des milliers d'index. Le problème principal du coût et de temps de recherche se posera à nouveau. Pour résoudre ce problème, il faut limiter le nombre d'index à gérer dans le \textit{VA\_file}, en utilisant un nombre limite d'index pour chaque niveau d'index. Pour notre application, ce nombre est fixé à 1024 index par niveau d'indexation. Une fois, le nombre d'index stocké dans le $VA\_file$ dépasse ce seuil, l'application crée un nouveau niveau d'index. Ce nouveau d'index est référencé sur l'index plus bas. 
+	
+	Par exemple, un filtre de Bloom de taille 256 bits $B^{256}_1$ est l'index d'un filtre de Bloom de taille 512 bits $B^{512}_0$. Donc, pour chaque niveau $i$, le filtre créé doit satisfaire la formule suivant: $B^{\frac{512}{2^i}}_i$. 
+	
+	Le système recherche le fichier \textit{VA\_file} pour trouver les index existants. Chaque nouveau d'index \textit{i} correspond avec un fichier qui contient les index de niveau \textit{i - 1} qui ont le même nouveau d'index. Le système va refaire chaque fois que le seuil est dépassé.
 	
 	Est-ce que le niveau d'index est illimité? La réponse est non. Pour le filtre de Bloom que nous avons choisi 512 bits, nous avons maximum 6 niveaux, $B^{8}_6$. Du coup, la taille de filtre de Bloom au niveau le plus haut est de 8 bits. A ce niveau, on a au maximum 256 valeurs d'index possibles dans le fichier $VA\_file$, un nombre très petit par rapport au quantité de données. 
 	
-	La technique d'augmentation le niveau dynamique est très efficace si on a un nombre de données n'est pas important. Si on a 100 000 documents à ajouter, la création des fichiers nécessaires nous prend plusieurs heures pour les créer. Donc, si on connaît le nombre de données, on peut fixer combien de niveaux d'index nécessaire. Selon notre résultat sur un disque dur SSD, nous avons fixé 6 niveaux d'index, la création nous coûte seulement 15 minuites. Avec la curiosité, nous avons essayé de réaliser sur un disque dur 80Go utilisé l'interface SATA II, il prend plus de deux heures pour faire le même travail. Du coup, nous avons laissé à côté la technique de création dynamique, et fixé 6 niveaux d'index utilisés.	
+	La technique d'augmentation le niveau dynamique est très efficace si on a un nombre de données n'est pas important. Si on a plus de 100 000 documents à ajouter, la création des fichiers nécessaires nous prend plusieurs heures pour les créer. Donc, si on connaît le nombre de données, on peut fixer combien de niveaux d'index nécessaire. Selon notre résultat sur un disque dur SSD, nous avons fixé 6 niveaux d'index, la création nous coûte seulement 15 minuites. Avec la curiosité, nous avons essayé de réaliser sur un disque dur 80Go utilisé l'interface SATA II, il prend plus d'une heure pour faire le même travail. Du coup, nous avons laissé à côté la technique de création dynamique, et fixé 6 niveaux d'index utilisés.	
 	
 \section{Recherche de données}
-	{\huge \itshape P}uisque l'on a fixé le nombre de niveau, on connaît la taille du filtre de Bloom contenu dans le fichier $VA\_file$, sinon on peut lire ce fichier pour trouver quel niveau où on est. D'abord, le système crée le filtre de Bloom de taille 512 bits $B^{512}_{req}$ pour la requête selon l'ensemble de mots clés fourni par l'utilisateur. A partir de ce filtre, le système calcul l'index de niveau le plus haut $B^{8}_{6_{req}}$ et lit le fichier $VA\_file$ pour trouver l'ensemble des index qui contiennent $B^{8}_{6_{req}}$. Une fois on a trouvé, le résultat est stocké dans un fichier $res_6$ qui correspond à ce niveau, ici c'est niveau 6. Ensuite, le système lit ce fichier de résultat pour trouver le nom des fichiers d'index à niveau 6 $B^{8}_{6}$, il accéde à ces fichiers et compare avec le filtre de la requête au niveau 5 $B^{16}_{5_{req}}$ avec les filtres trouvés. Car le fichier $VA\_file$ contient les index de niveau 6, chaque fichier qui correspond avec un index à niveau 6, contient les index de niveau 5, etc... Le résultat trouvé est stocké dans un fichier $res_5$. 
+	{\huge \itshape P}uisque l'on a fixé le nombre de niveau, on connaît la taille du filtre de Bloom contenu dans le fichier \textit{VA\_file}. Sinon on peut lire ce fichier pour trouver quel niveau où on est. D'abord, le système crée le filtre de Bloom de taille 512 bits $B^{512}_{req}$ pour la requête à partir de l'ensemble de mots clés fourni par l'utilisateur. A partir de ce filtre, le système calcul l'index de niveau le plus haut $B^{8}_{6_{req}}$ et lit le fichier $VA\_file$ pour trouver l'ensemble des index qui contiennent $B^{8}_{6_{req}}$. Une fois on a trouvé, le résultat est stocké dans un fichier $res_6$ qui correspond à ce niveau, ici c'est niveau 6. Ensuite, le système lit ce fichier de résultat pour trouver le nom des fichiers d'index à niveau 6 $B^{8}_{6}$, il accéde à ces fichiers et compare avec le filtre de la requête au niveau 5 $B^{16}_{5_{req}}$ avec les filtres trouvés. Car le fichier $VA\_file$ contient les index de niveau 6, chaque fichier qui correspond avec un index à niveau 6, contient les index de niveau 5, etc... Le résultat trouvé est stocké dans un fichier $res_5$. 
 	
-	Le système utilise la même façon en descendant vers le niveau 1. Le fichier $res_1$ contient les filtres de taille 256 bits $B^{256}_{1}$, en regardant les fichiers de $B^{256}_{1}$, on trouve les filtres de taille 512 bits $B^{512}_{0}$ et les compare avec le filtre $B^{512}_{req}$ de la requête, une fois que le filtre existant contient celui de la requête, on peut trouver facilement le nom du fichier qui contient le document cherché. Après la recherche, on trouve un ensemble de documents qui contient les mots clés de la requête. On ne peut éviter les faux positifs, on fait confiance à la puisance de fonction de hachage. Mais avec certitude, on a trouvé tous les documents dont la description contiennent la requête.
+	Le système utilise la même façon en descendant vers le niveau 1. Le fichier $res_1$ contient les filtres de taille 256 bits $B^{256}_{1}$, en regardant les fichiers de $B^{256}_{1}$, on trouve les filtres de taille 512 bits $B^{512}_{0}$ et les compare avec le filtre $B^{512}_{req}$ de la requête, une fois que le filtre existant contient celui de la requête, on peut trouver facilement le nom du fichier qui contient le document cherché. Après la recherche, on trouve un ensemble de documents qui contient les mots clés de la requête. On ne peut éviter les faux positifs, on fait confiance à la puisance de fonction de hachage. Mais avec certitude, si un document ne contient pas la requête, il ne nous satisfait pas.
 
 \chapter{Algorithme des fonctions}
 \section{CREATE\_FILTER}
@@ -44,6 +52,7 @@
 					\> $j \leftarrow i\ mod\ 512$\\
 					\> $B^{512}[j]\leftarrow 1$\\
 					\> $x \leftarrow$ NEXT($\sum desc$)\\
+			\textbf{end}\\
 			\textbf{return} $B^{512}$\\
 	    	\end{tabbing}		
 	\end{framed}
@@ -85,6 +94,7 @@
 					\> \textbf{else}\\
 					\>	\> $vector_i \leftarrow$ CREATE\_VECTOR($B^{512}$, \textit{i})\\
 					\>	\> CREATE\_FILE($vector_i$, CREATE\_VECTOR($B^{512}$, \textit{i - 1}))\\
+					\> \textbf{end}\\
 			\textbf{end}	\\	
 			\textbf{return} $\emptyset$\\
 	    	\end{tabbing}		
@@ -99,15 +109,15 @@
 
 \begin{flushleft}
 	\begin{framed}
-		\textbf{IN:} filtre de Bloom de taille 512 bits $B^{512}$\\
-		\textbf{FUNCTION:} \textit{search($B^{512}$)}\\
+		\textbf{IN:} filtre de Bloom de taille 512 bits $B^{512}_{req}$\\
+		\textbf{FUNCTION:} \textit{search($B^{512}_{req}$)}\\
 		\textbf{OUT:} \textit{$\sum doc$}\\
 
 		\noindent\rule{\linewidth}{0.5pt}
 
 		\begin{tabbing}
 			$i \leftarrow$ MAX\_LEVEL\\
-			$vector_i \leftarrow$ CREATE\_VECTOR($B^{512}$, \textit{i})\\
+			$vector_i \leftarrow$ CREATE\_VECTOR($B^{512}_{req}$, \textit{i})\\
 			$tmp \leftarrow$ CREATE\_FILE(\textit{i})\\
 			$x \leftarrow$ FIRST(\textit{VA\_file})\\
 			
@@ -119,12 +129,16 @@
 			\textbf{end}\\
 			
 			\textbf{for }\=$i = MAX\_LEVEL - 1\ ...\ 1$ \textbf{do}\\
-					\> $vector_i \leftarrow$ CREATE\_VECTOR($B^{512}$, \textit{i})\\
+					\> $vector_i \leftarrow$ CREATE\_VECTOR($B^{512}_{req}$, \textit{i})\\
 					\> $x \leftarrow$ FIRST(FILE(\textit{i + 1}))\\
 					\> $tmp \leftarrow$ CREATE\_FILE(\textit{i})\\
 					\> \textbf{while }\=$x \neq \emptyset$\textbf{ do}\\
-					\> \> \textbf{if }\= $vector_i \subseteq x$\textbf{ then}\\
-					\> \> \> tmp $\leftarrow$ ADD(\textit{x})\\
+					\> \> $y \leftarrow$ FIRST(FILE(\textit{x}))\\
+					\> \> \textbf{while }\= $y \neq \emptyset$ \textbf{ do}\\
+					\> \> \> \textbf{if }\= $vector_i \subseteq y$\textbf{ then}\\
+					\> \> \> \> tmp $\leftarrow$ ADD(\textit{y})\\
+					\> \> \> \textbf{end}\\
+					\> \> \> $y \leftarrow$ NEXT(FILE(\textit{x}))\\
 					\> \> \textbf{end}\\
 					\> \> $x \leftarrow$ NEXT(FILE(\textit{i + 1}))\\
 					\> \textbf{end}\\
@@ -133,8 +147,8 @@
 			\textbf{while }\=$x \neq \emptyset$\textbf{ do}\\
 					\> $y \leftarrow $ FIRST(FILE(\textit{x}))\\
 					\> \textbf{while }\= $y \neq \emptyset$\textbf{ do}\\
-					\> \> \textbf{if }\= $B^{512} \subseteq y$\textbf{ then}\\
-					\> \> \> $\sum doc \leftarrow$ FIRST(FILE(\textit{y}))\\
+					\> \> \textbf{if }\= $B^{512}_{req} \subseteq y$\textbf{ then}\\
+					\> \> \> $\sum doc \leftarrow$ ADD(FIRST(FILE(\textit{y})))\\
 					\> \> \textbf{end}\\
 					\> \> $y \leftarrow$ NEXT(FILE(\textit{x}))\\
 					\> \textbf{end}\\
@@ -147,11 +161,11 @@
 
 \chapter{Résultat obtenu}
 \section{Données}
-	{\huge \itshape N}ous avons testé sur 107 459 documents, cette application a généré 320 000 fichiers nécessaires. 107 459 documents sont sous forme un lien URL. Au début, ces lien sont stockés dans un fichier de test. Nous avons testé le programme sur le disque dur SATA II et un SSD. La création des fichiers nécessaires nous coûte plus de deux heures sur un disque dur traditionnel au lieu de 15 minuites sur un SSD. Du coup, nous avons choisi d'utiliser le SSD dans tous nos tests. Avant de chaque test, les fichiers temporaires se sont vidés.
+	{\huge \itshape N}ous avons testé sur 107 459 documents, cette application a généré 319 720 fichiers nécessaires. 107 459 documents sont sous forme un lien URL. Au début, ces lien sont stockés dans un fichier de test. Nous avons testé le programme sur un processeur Intel Core\textsuperscript{\tiny{TM}} i7 2.3 GHz avec 8 Go de mémoire vive. Avant de chaque test, les fichiers temporaires se sont vidés.
 	
 \newpage
 \section{Recherche aléatoire}
-	{\huge \itshape N}ous réalisons la requête avec les mots clés choisis aléatoirement, la quantité de mots clés augmente chaque fois nous relançons la requête. Nous constatons que, plus de mots clés, moins de temps d'attente la réponse. Dans la figure \ref{recherche/aleatoire}, nous testons avec un à 20 mots clés.
+	{\huge \itshape P}our faire la recherche aléatoire, nous réalisons une requête avec les mots clés choisis aléatoirement. En augmentant le nombre de mots clés chaque fois que nous relançons la requête. Nous constatons que plus de mots clés, moins de temps d'attente de la réponse. Dans la figure \ref{recherche/aleatoire}, nous testons de un à 20 mots clés.
 
 \begin{figure}[!htbp]
 	\psset{linecolor=blue}
@@ -172,9 +186,11 @@
 
 \newpage
 \section{Recherche sélective}
-	{\huge \itshape P}endant les tests, nous voyons que avec la même quantité de mots clés dans la même description d'un document quelconque, le temps nécessaire pour avoir la réponse varie. Nous essayons plusieurs test avec la quantité de mots clés fixe, nous changons seulement les mots clés qui appartiennent dans la même description. Le résultat est intéressant. 
+	{\huge \itshape P}endant les tests, nous avons remarqué qu'avec le même nombre de mots clés inclut dans l'ensemble des mots clés de la description d'un document quelconque, le temps nécessaire pour avoir la réponse varie quand on change un mot clé par un autre du même ensemble. Le résultat est intéressant. Dans un premier temps, nous faisons le test avec un ensemble des mots clés qui appartiennent à plusieurs descriptions, nous les appellerons "populaire". Le deuxième test, nous ne prenons que les mots clés spécifiques à un document quelconque. La description d’un document dans ces deux tests reste identique, ce qui change est les mots clés utilisés. 
 
-	Dans le premier test, nous choissons l'ensemble des mots clés qui appartiennent à plusieurs descriptions, ces mots clés sont appelés "populaire". Le deuxième test, nous prennons que les mots clés spécifiques qui sont caractéristiques pour chaque document dans la description d'un document quelconque. La description d'un document dans ces deux tests reste identique, ce qui change est les mots clés utilisés. Nous commençons par 1 mot et chaque fois nous relançons la requête, nous augmentons le nombre de mots clés. Dans le premier test, le nombre de mots clés augmenté ne signifie que le temps va être réduit.Dans le graphe, nous montrons que si on ajoute un mot "très populaire", ce mot nous coûte plus de temps. Dans le deuxième test, si on ajoute un mot "populaire", ce mot casse l'advantage de la recherche sélective. Donc, pour mieux rechercher un document, il faut que nous cherchions plusieurs mots clés qui caractérisent le document. Dans la figure \ref{recherche/selective}, nous testons sur les requête d'un à sept mots clés. 
+	Nous commençons par 1 mot et chaque fois nous relançons la requête, nous augmentons le nombre de mots clés. Dans le premier test, le nombre de mots clés augmenté ne signifie pas  le temps va être réduit. Dans le graphe, nous montrons que si on ajoute un mot "très populaire", ce mot nous coûte plus de temps. Dans le deuxième test, si on ajoute un mot "populaire" dans un ensemble des mots spécifique le temps augmente au lieu de diminuer. Ce mot casse l'advantage de la recherche sélective. 
+	
+	Donc, pour une meilleur recherche d'un document, il faut que nous cherchions plusieurs mots clés qui caractérisent le document d'une manière spécifique. Ce qui est difficile de gérer dans la réalité. La figure \ref{recherche/selective}, nous testons sur les requête d'un à sept mots clés. 
 	
 	\begin{figure}[!htbp]
 		\psset{linecolor=blue}
@@ -205,9 +221,21 @@
 	\end{figure}
 
 \chapter{Conclusion}
-	{\huge \itshape A}près ce projet, notre technique de recherche a besoin d'améliorer, le temps de réponse est très important. Car a création d'un vecteur est une sorte de vecteur approximatif, mais ce vecteur ne caractérise pas forcément les caractéristiques du filtre donné. En plus, notre programme est écrit en C, donc la mémoire louée pour chaque programme est limité, nous ne pouvons stocker toutes les données intermédiaire dans la mémoire. Du coup, nous travaillons sur le disque dont le temps d'accès de disque nous coûte cher. Chaque fois nous obtenons un résultat intermédiaire, nous devons écrire sur le disque sous forme d'un fichier.
-
-
-
-
-
+	{\huge \itshape A}près ce projet, notre technique de recherche a besoin d'ête amélioré, le temps de réponse est très important. Car la création d'un vecteur est une sorte de vecteur approximatif, mais ce vecteur ne définie pas forcément les caractéristiques du filtre donné. 
+	
+	Notre programme est écrit en C, donc la mémoire louée pour chaque programme est limité, nous ne pouvons stocker toutes les données intermédiaires dans la mémoire. Chaque fois nous obtenons un résultat intermédiaire, nous devons écrire sur le disque sous forme d'un fichier. Du coup, nous travaillons sur le disque dont le temps d'accès de disque nous coûte cher.
+	
+	En plus, notre travail est réalisé sur une seule machine, mais dans le réseau pair-à-pair, chaque machine se charge de gérer un niveau d'index par exemple, peut-être le temps de réponse sera plus court que sur une seule machine qui gère tous les niveaux.
+	
+	Ici, nous testons notre application un benchmark d'environ 100 000 documents seulement, si le nombre de données augmente, nous devons augmenter la taille de filtre et ajouter des nouvelles fonctions de hachage. Dans ces conditions notre technique de recherche répondra plus efficacement aux besoins de coût et de temps de réponse et assurera l'exactitude des documents trouvés.
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

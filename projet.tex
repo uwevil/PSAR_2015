@@ -3,22 +3,27 @@
 		{\huge \itshape I}l existe actuellement plusieurs moteurs de recherche par mots clés sur le marché. Il est toujours nécessaire d’améliorer les recherches en minimisant le temps de réponse et le coût de recherche, d’autant plus que les besoins de recherche deviennent très importants lorsqu’on exploite des bases de données de plus en plus grande et complexe. L’application que nous développerons doit répondre explicitement à ces exigences.
 		
 	\section{Contexte et objectifs}
-		{\huge \itshape C}omme l’application FreeCore\cite{freecore}, qui utilise le filtre de Bloom pour faciliter la recherche par mot clé, le but de notre projet est d'explorer d’autres solutions basées sur une recherche de filtre de Bloom similaires.  Chaque filtre  de  Bloom  sera vu  comme  un  point  dans  un  espace à n dimensions  plutôt  qu'une  concaténation de  n mots binaires. On détermine ensuite une relation de proximité et on exploite les algorithmes de recherche des filtres similaires pour réduire l'ensemble de filtres à examiner.
+		{\huge \itshape L}e filtre de Bloom est une solution qui nous permet dans le premier temps de minimiser le coût de recherche, car au lieu de chercher pour chaque mot clé une liste des documents, un filtre de Bloom représentera un ensemble des mots clés. Le filtre de Bloom fera référence à une liste de documents qui contiennent tous les mots clés de l'ensemble.
+		
+		Alors, si nous avons un filtre de taille 8 bits, on aura $2^8 = 256$ entrées à parcourir. Au fur et à mesure que le filtre est grand, comme dans les cas réels, il faut utiliser les filtres de grande taille pour éviter les collisons. Pour un filtre de taille 256 bits, il faudra visiter $2^{256}$ entrées. Le temps et le coût de recherche deviennent très importants. Cela nous ramène au problème de départ. Le but serait donc de visiter que les entrées concernées ou non nulles.
+		
+	Comme l’application FreeCore\cite{freecore}, qui utilise le filtre de Bloom pour faciliter la recherche par mot clé, le but de notre projet est d'explorer d’autres solutions basées sur une recherche de filtre de Bloom similaires. Contrairement à FreeCore\cite{freecore}, notre algorithme utilise des index et les place dans un espace qui permet d'aller chercher plus rapide car toutes les entrées sont non nulles.
 		
 	\section{Enoncé du besoin}
-		{\huge \itshape C}omme FreeCore, l’application exploitera les propriétés des filtres de Bloom. Il  permettra d’une part, de stocker les publications dans un fichier $VA\_file$ (put). Et d’autre part, d’effectuer des recherches de contenus par mots clés (search).
+		{\huge \itshape C}omme FreeCore, l’application exploitera les propriétés des filtres de Bloom. Il  permettra d’une part, de stocker les publications dans un fichier \textit{VA\_file}(put). Et d’autre part, d’effectuer des recherches de contenus par mots clés(search).
+		
 	\subsection{Stockage et indexation des publications}
 	L’application permet de rechercher des publications qui contiennent tous les mots clés de la requête de façon optimale en utilisant le filtre de Bloom. Elle doit :
 	\begin{itemize}
 	
 	\item créer un filtre de Bloom correspondant à la description de la publication, 
-	\item créer un vecteur de n dimensions.
+	\item créer un vecteur de \textit{n} dimensions.
 	\item créer les lieux où on stocke les différents documents,
 	\item à partir d'un fichier de test, classer et indexer les documents dans les lieux correspondants,		
-	\item ajouter un nouveau document à partir d'un filtre de Bloom,				\end{itemize}
+	\item ajouter un nouveau document à partir d'un filtre de Bloom.				\end{itemize}
 	
 	\subsection{Recherche de contenus}
-	Pour la recherche l’application créera un Filtre de Bloom des mots clés, représentants notre critère de recherche, c’est-à-dire les mots clés et devra :
+	Pour la recherche, l’application créera un Filtre de Bloom des mots clés, représentants notre critère de recherche, c’est-à-dire les mots clés et devra :
 	\begin{itemize}
 		\item recherche un document à partir du filtre de Bloom,
  		\item utilise le vecteur approximatif pour indexer et rechercher.
@@ -34,4 +39,4 @@ En outre, l’application doit assurer les services suivants :
 	\end{itemize}
 	\begin{description}
 		\item[Note :] Nous ne traiterons pas les erreurs  possibles obtenues en cas de faute de frappe ou de faute d’orthographe, ni la différence de genre et de nombre des mots clés. Qui pourront faire objet d’une suite de ce travail.
-			\end{description}
+	\end{description}

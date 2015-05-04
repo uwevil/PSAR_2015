@@ -6,7 +6,7 @@
 \usepackage{hyperref}
 \usepackage{tabulary}
 \usepackage{framed}
-\usepackage{fancyhdr}
+%\usepackage{fancyhdr}
 \usepackage{amsmath}
 \usepackage{bbm}
 \usepackage{pstricks}
@@ -14,10 +14,10 @@
 \usetheme{Madrid}
 \useinnertheme{rectangles}
 
-\title[]{\noindent\rule{\linewidth}{1pt}
+\title[]{\rule{\linewidth}{1pt}
 		\large Recherche de filtres de Bloom similaires \\
 		\large Application à la recherche par mots clés basée sur une DHT\\
-		\noindent\rule{\linewidth}{1pt}
+		\rule{\linewidth}{1pt}
 }
 \author[NDOMBI TSHISUNGU \& DOAN]{\textbf{NDOMBI TSHISUNGU} Christian \& \textbf{DOAN} Cao Sang \\
 			Encadrant: M. \textbf{MAKPANGOU} Mesaac, Regal}
@@ -42,15 +42,83 @@
 	\end{frame}
 
 	\section{Filtre de Bloom}
+	\subsection{Insertion}
+	\begin{frame}[shrink]
+		\frametitle{Filtre de Bloom}
+		\framesubtitle{Insertion dans le filtre de Bloom}
+		
+		\begin{framed}
+		\textbf{IN:} \textit{x} objet à insérer dans le filtre de Bloom \textit{B}\\
+		\textbf{FUNCTION:} \textit{insert(x)}\\
+		\textbf{OUT:} $\emptyset$
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{tabbing}
+			\textbf{for} \= $i = 0 ... k - 1$ \textbf{do}\\
+					\> $j \leftarrow h_i(x)$\\
+					\> \textbf{if} \= $B_j == 0$ \textbf{then}\\
+					\> \> $B_j \leftarrow 1$\\
+					\> \textbf{end}\\
+			\textbf{end}
+	    	\end{tabbing}		
+	\end{framed}
+	\end{frame}
+	
 	\begin{frame}
 		\frametitle{Filtre de Bloom}
+		\framesubtitle{Exemple d'insertion}
+		Par exemple, supposons que nous souhaitions ajouter la clé "computer" dans la table B de taille 16 bits, que nous ayons 4 fonctions de hachage $ h_i, 0 \leq i < 4 $ et que $ h_0("computer") = 3$, $ h_1("computer") = 8$, $ h_2("computer") = 15$, $h_3("computer") = 10$, $h_4("computer") = 11 $. Donc, l'état de la table $ B $ après l'insertion sera:
+	\begin{table}[!h]
+		\centering		
+		\begin{tabular}{|l|*{14}{c|}r|}
+		\multicolumn{1}{c}{{\scriptsize 15}} &\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{}&\multicolumn{1}{c}{{\scriptsize 0}}\\
+		\hline
+			1 & 0 & 0 & 0 & 1 & 1 & 0 & 1 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+		\hline
+		\end{tabular}
+		\caption{Exemple filtre de Bloom}
+	\end{table}
+	\end{frame}
+	\subsection{Recherche}
+	\begin{frame}[shrink]
+		\frametitle{Filtre de Bloom}
+		\framesubtitle{Recherche dans le filtre de Bloom}
+		\begin{framed}
+		\textbf{IN:} \emph{x} objet à tester dans le filtre de Bloom \textit{B}\\
+		\textbf{FUNCTION:} \textit{ismember(x)}\\
+		\textbf{OUT:} $bool$
+
+		\noindent\rule{\linewidth}{0.5pt}
+
+		\begin{tabbing}
+			$m \leftarrow true$\\
+			$i \leftarrow 0$\\
+			\textbf{while} \= $m$ \&\& $i \leq k - 1$ \textbf{do}\\
+					\> $j \leftarrow h_i(x)$\\
+					\> \textbf{if} \= $B_j == 0$ \textbf{then}\\
+					\> \> $m \leftarrow false$\\
+					\> \textbf{end}\\
+					\> $i \leftarrow i + 1$\\
+			\textbf{end}
+			\textbf{return} $m$\\
+	    	\end{tabbing}		
+	\end{framed}
+	\end{frame}
+	
+	\begin{frame}[shrink]
+		\frametitle{Filtre de Bloom}
+		\framesubtitle{Exemple de recherche}
+		\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=10cm]{ismember.eps}
+	\caption{isMember?}
+\end{figure}	
 
 	\end{frame}
 	
 	\section{Réalisation du travail}
 	\begin{frame}
 		\frametitle{Réalisation du travail}	
-	
 	\end{frame}
 	
 	\section{Algorithme des fonctions}
@@ -198,8 +266,10 @@
 	\end{frame}
 	
 	\section{Résultat de tests}
+	\subsection{Contexte de test}
 	\begin{frame}
-		
+		\frametitle{Résultat de test}
+		\framesubtitle{Contexte de test}
 	\end{frame}
 	
 	\subsection{Recherche aléatoire}
@@ -209,7 +279,7 @@
 		\begin{figure}[!htbp]
 			\psset{linecolor=blue}
 			\psset{xunit=0.4cm, yunit=0.05cm}
-			\begin{pspicture}(-3,0)(110,110)
+			\begin{pspicture}(-5,0)(110,110)
 				\psline[linecolor=black,linewidth=1pt]{->}(0,0)(21,0) \uput*[-90](21,0){\small{\textit{data}}}
 				\psline[linecolor=black,linewidth=1pt]{->}(0,0)(0,100) \uput*[-180](0,100){\small{\textit{$temps_{(s)}$}}}
 				
@@ -225,7 +295,7 @@
 		\end{figure}	
 	\end{frame}
 			
-	\subsection{Rechercher selective}
+	\subsection{Recherche selective}
 	\begin{frame}
 		\frametitle{Résultat de tests}
 		\framesubtitle{Recherche sélective}

@@ -54,7 +54,7 @@ char *create_filter(char *keyword, int size_filter){
     unsigned char md[32];
     char hash[2*sizeof(md) + 1];
     CC_SHA256_CTX c;
-    int i;
+    int i, j;
     unsigned long l;
     
     for (i = 0; i < size_filter; i++) {
@@ -65,6 +65,7 @@ char *create_filter(char *keyword, int size_filter){
     tmp = keyword;
     key = strtok(tmp, ",");
     
+    j = 0;
     while (key != NULL) {
         CC_SHA256_Init(&c);
         CC_SHA256_Update(&c, (const void *)key, strlen(key));
@@ -76,10 +77,10 @@ char *create_filter(char *keyword, int size_filter){
        
         l = hex2int(hash, 32);
         filter[l % size_filter] = '1';
-        
+        j++;
         key = strtok(NULL, ",");
     }
-
+    printf("Nombre de mots clés: %d\n", j);
     filter[strlen(filter)] = '\0';
 
     return filter;
